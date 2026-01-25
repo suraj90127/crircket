@@ -1,0 +1,80 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+// import axios from "axios";
+import api from "../api"; // Adjust the import based on your project structure
+
+
+export const fetchSoccerData = createAsyncThunk(
+  "soccer/fetchSoccerData",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/soccer"); // Your backend API
+
+      console.log("response", response);
+
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch matches"
+      );
+    }
+  }
+);
+export const fetchSoccerBatingData = createAsyncThunk(
+  "cricket/fetchSoccerBatingData",
+  async (gameid, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/soccer/betting?gameid=${gameid}`); // Your backend API
+      console.log("response", response.data);
+
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch matches"
+      );
+    }
+  }
+);
+
+
+// Create the slice
+const soccerSlice = createSlice({
+  name: "soccer",
+  initialState: {
+    soccerLoading: null,
+    soccerError: null,
+    soccerData: [],
+    battingData: [],
+    loading: false,
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchSoccerData.pending, (state) => {
+        state.soccerLoading = true;
+        state.soccerError = null;
+      })
+      .addCase(fetchSoccerData.fulfilled, (state, action) => {
+        state.soccerLoading = false;
+        state.soccerData = action.payload;
+      })
+      .addCase(fetchSoccerData.rejected, (state, action) => {
+        state.soccerLoading = false;
+        state.soccerError = action.error.message;
+      })
+      .addCase(fetchSoccerBatingData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSoccerBatingData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.battingData = action.payload.data;
+      })
+      .addCase(fetchSoccerBatingData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
+});
+
+export default soccerSlice.reducer;

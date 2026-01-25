@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@keyframes blink {
+    0% {
+      color: green;
+    }
+    100% {
+      color: red;
+    }
+  }
