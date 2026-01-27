@@ -27,7 +27,7 @@ const Spinner = ({ path = "" }) => {
       {count !== 0 ? (
         /* From Uiverse.io by clarencedion */
         <div className="max-w-8xl mx-auto overflow-hidden flex justify-center items-center">
-        <div class="loader">
+        <div className="loader">
         <p className="transform -rotate-90 absolute">Loading ...</p>
           <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
             <defs>

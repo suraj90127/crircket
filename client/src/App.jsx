@@ -34,7 +34,7 @@ import Basketballbet from "./Games/Basketballbet";
 import MobileNavigation from "./components/MobileNav";
 import Account from "./pages/Account";
 import Sports from "./pages/Sports";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cricketbet from "./Games/Cricketbet";
 import PrivateRoute from "./redux/PrivateRoute";
@@ -42,86 +42,92 @@ import Events from "./Account/Events";
 import EventMatches from "./Account/EventMatches";
 import ProfitHistory from "./Account/ProfitHistory";
 import OpenBet from "./pages/OpenBet";
+import Register from "./pages/Regiterpage";
+import ForgotPassword from "./pages/Forgetpassword";
+import Casinogame from "./Games/Casinogame";
 
 function App() {
   return (
     <Router>
-      <div className="flex flex-col">
-        <Navbar />
-        <MobileNavigation />
-        <div className="flex flex-1 relative">
-          {/* Sidebar nav */}
-          <Sidebar />
+      <Routes>
+        {/* ================= PUBLIC ROUTES WITHOUT LAYOUT ================= */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        
+        {/* ================= MAIN LAYOUT ROUTES ================= */}
+        <Route path="/*" element={
+          <div className="flex flex-col">
+            <Navbar />
+            <MobileNavigation />
+            <div className="flex flex-1 relative">
+              {/* Sidebar nav */}
+              <Sidebar />
 
-          {/* Main Content */}
-          <div className="flex-1  md:p-2  w-[55%]">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Home />} />
-              <Route path="/in-play" element={<Inplay />} />
-              <Route path="/cricket" element={<Circket />} />
-              <Route path="/tennis" element={<Tennis />} />
-              <Route path="/soccer" element={<Soccer />} />
-              <Route path="/" element={<PrivateRoute />}>
+              {/* Main Content */}
+              <div className="flex-1 md:p-2 w-[55%]">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/in-play" element={<Inplay />} />
+                  <Route path="/cricket" element={<Circket />} />
+                  <Route path="/tennis" element={<Tennis />} />
+                  <Route path="/soccer" element={<Soccer />} />
+                  <Route path="/live-casinogame" element={<Casinogame />} />
+                  
+                  {/* ================= PROTECTED ROUTES ================= */}
+                  <Route element={<PrivateRoute />}>
+                    <Route path="/horse-racing" element={<Horse />} />
+                    <Route path="/greyhound-racing" element={<Grayhound />} />
+                    <Route path="/basketball" element={<Basketball />} />
+                    <Route path="/lottery" element={<Lottery />} />
+                    <Route path="/live-casino" element={<Games />} />
+                    <Route path="/tips-previews" element={<Blogs />} />
+                    <Route path="/blog/:id" element={<SingleBlog />} />
+                    <Route path="/multi-markets" element={<Market />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/rolling" element={<Rolling />} />
+                    <Route path="/statement" element={<Statement />} />
+                    <Route path="/bet-history" element={<Bethistory />} />
+                    <Route path="/p&l" element={<ProfitLoss />} />
+                    <Route path="/event/:id" element={<Events />} />
+                    <Route path="/event-matches/:id" element={<EventMatches />} />
+                    <Route path="/profit-history/:id" element={<ProfitHistory />} />
+                    <Route path="/passhistory" element={<PasswordHistory />} />
+                    <Route path="/activity" element={<Activity />} />
+                    <Route path="/soccerbet/:match/:gameid" element={<Soccerbet />} />
+                    <Route path="/horsebet" element={<Horsebet />} />
+                    <Route path="/greyhound-bet" element={<Greyhoundbet />} />
+                    <Route path="/tennis-bet/:match/:gameid" element={<Tennisbet />} />
+                    <Route path="/cricket-bet/:match/:gameid" element={<Cricketbet />} />
+                    <Route path="/basketball-bet" element={<Basketballbet />} />
+                    <Route path="/ballbyball" element={<Ballbyball />} />
+                    <Route path="/account" element={<Account />} />
+                    <Route path="/sports" element={<Sports />} />
+                    <Route path="/open-bet" element={<OpenBet />} />
+                    
+                    
+                  </Route>
+                </Routes>
+              </div>
 
-                <Route path="/horse-racing" element={<Horse />} />
-                <Route path="/greyhound-racing" element={<Grayhound />} />
-                <Route path="/basketball" element={<Basketball />} />
-                <Route path="/lottery" element={<Lottery />} />
-                <Route path="/live-casino" element={<Games />} />
-                <Route path="/tips-previews" element={<Blogs />} />
-                <Route path="/blog/:id" element={<SingleBlog />} />
-                <Route path="/multi-markets" element={<Market />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/rolling" element={<Rolling />} />
-                <Route path="/statement" element={<Statement />} />
-                <Route path="/bet-history" element={<Bethistory />} />
-                <Route path="/p&l" element={<ProfitLoss />} />
-                <Route path="/event/:id" element={<Events />} />
-                <Route path="/event-matches/:id" element={<EventMatches />} />
-                <Route path="/profit-history/:id" element={<ProfitHistory />} />
-                <Route path="/passhistory" element={<PasswordHistory />} />
-                <Route path="/activity" element={<Activity />} />
-                <Route
-                  path="/soccerbet/:match/:gameid"
-                  element={<Soccerbet />}
-                />
-                <Route path="/horsebet" element={<Horsebet />} />
-                <Route path="/greyhound-bet" element={<Greyhoundbet />} />
-                <Route
-                  path="/tennis-bet/:match/:gameid"
-                  element={<Tennisbet />}
-                />
-                <Route
-                  path="/cricket-bet/:match/:gameid"
-                  element={<Cricketbet />}
-                />
-                <Route path="/basketball-bet" element={<Basketballbet />} />
-                <Route path="/ballbyball" element={<Ballbyball />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/sports" element={<Sports />} />
-                <Route path="/open-bet" element={<OpenBet />} />
-              </Route>
-            </Routes>
+              {/* Running Bets Section */}
+              <Betting />
+            </div>
+            <ToastContainer
+              position="top-right"
+              autoClose={800}
+              hideProgressBar={true}
+              newestOnTop={false}
+              closeOnClick={true}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+            />
           </div>
-
-          {/* Running Bets Section */}
-          <Betting />
-        </div>
-      </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={800}
-        hideProgressBar={true}
-        newestOnTop={false}
-        closeOnClick={true}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+        } />
+      </Routes>
     </Router>
   );
 }

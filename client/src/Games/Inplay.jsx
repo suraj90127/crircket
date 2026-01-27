@@ -1,323 +1,188 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchTennisData } from "../redux/reducer/tennisSlice";
 import { fetchCricketData } from "../redux/reducer/cricketSlice";
 import { fetchSoccerData } from "../redux/reducer/soccerSlice";
-import Games from "../components/Games";
-import { Link, useNavigate } from "react-router-dom";
-
 import { getUser } from "../redux/reducer/authReducer";
+import { useNavigate } from "react-router-dom";
+import { MdLock } from "react-icons/md";
+import { BiCricketBall, BiTv } from "react-icons/bi";
+import { MdOutlineSportsTennis } from "react-icons/md";
+import { IoIosFootball } from "react-icons/io";
+
+import Games from "../components/Games";
 import PageFooter from "../components/PageFooter";
 
 const Inplay = () => {
   const [activeTab, setActiveTab] = useState("In-Play");
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // Fetch tennis data from Redux store
 
   const { userInfo } = useSelector((state) => state.auth);
-  const {
-    data: tennisData,
-    loading: tennisLoading,
-    error: tennisError,
-  } = useSelector((state) => state.tennis);
+  const { data: tennisData, loading: tennisLoading } = useSelector((state) => state.tennis);
+  const { matches: cricketData, loader: cricketLoading } = useSelector((state) => state.cricket);
+  const { soccerData, soccerLoading } = useSelector((state) => state.soccer);
 
-  // Fetch cricket data from Redux store
-  const {
-    matches: cricketData,
-    loading: cricketLoading,
-    error: cricketError,
-  } = useSelector((state) => state.cricket);
-
-  // Fetch soccer data from Redux store
-  const {
-    soccerData: soccerData,
-    loading: soccerLoading,
-    error: soccerError,
-  } = useSelector((state) => state.soccer);
-
-  // Fetch data on component mount
   useEffect(() => {
     dispatch(fetchTennisData());
     dispatch(fetchCricketData());
     dispatch(fetchSoccerData());
+    dispatch(getUser());
   }, [dispatch]);
 
-
-  // Debug soccer data
-  useEffect(() => {
-    console.log("Soccer Data in Inplay:", tennisData);
-  }, [soccerData]);
-
-
-  // Filter Tennis In-Play games
+  // Logic for filtering maintained from your original code
   const inPlayTennisGames = (tennisData || []).filter((game) => game.iplay);
-  // today
   const todayTennisGames = (tennisData || []).filter((game) => {
     const gameDate = new Date(game.date).toLocaleDateString();
-    const todayDate = new Date().toLocaleDateString();
-    return gameDate === todayDate && game.iplay !== true;
-  });
-  // tommorow
-  const tommrowPlayTennisGames = (tennisData || []).filter((game) => {
-    const gameDate = new Date(game.date).toLocaleDateString();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toLocaleDateString();
-    return gameDate === tomorrowDate && game.iplay !== true;
+    return gameDate === new Date().toLocaleDateString() && !game.iplay;
   });
 
-  // Filter Cricket In-Play games
   const inPlayCricketGames = (cricketData || []).filter((game) => game.inplay);
   const todayPlayCricketGames = (cricketData || []).filter((game) => {
     const gameDate = new Date(game.date).toLocaleDateString();
-    const todayDate = new Date().toLocaleDateString();
-    return gameDate === todayDate && game.iplay !== true;
-  })
-  const tommrowPlayCricketGames = (cricketData || []).filter((game) => {
-    const gameDate = new Date(game.date).toLocaleDateString();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toLocaleDateString();
-    return gameDate === tomorrowDate && game.iplay !== true;
-  })
+    return gameDate === new Date().toLocaleDateString() && !game.inplay;
+  });
 
-  // Filter Soccer In-Play games
   const inPlaySoccerGames = (soccerData || []).filter((game) => game.iplay);
   const todayPlaySoccerGames = (soccerData || []).filter((game) => {
     const gameDate = new Date(game.date).toLocaleDateString();
-    const todayDate = new Date().toLocaleDateString();
-    return gameDate === todayDate && game.iplay !== true;
-  })
-  const tommrowPlaySoccerGames = (soccerData || []).filter((game) => {
-    const gameDate = new Date(game.date).toLocaleDateString();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toLocaleDateString();
-    return gameDate === tomorrowDate && game.iplay !== true;
-  })
+    return gameDate === new Date().toLocaleDateString() && !game.iplay;
+  });
 
-  const isGameOn = (index) => {
-    return !userInfo || userInfo?.gamelock?.[index]?.lock;
-  };
-
-  const buildGameCategory = (name, dataArray, link, index) => {
-    if (!isGameOn(index)) return null;
-    return {
-      name,
-      games: dataArray.map((game) => ({
-        gameid: game.id,
-        teams: game.match,
-        status: "",
-        link,
-        odds: game.odds,
-        date: game.date,
-      })),
-    };
-  };
+  const isGameOn = (index) => !userInfo || userInfo?.gamelock?.[index]?.lock;
 
   const categories = {
-    "In-Play": (() => {
-      if (!userInfo) {
-        return [
-          {
-            name: "Tennis",
-            games: inPlayTennisGames.map((game) => ({
-              gameid: game.id,
-              teams: game.match,
-              status: "In-Play",
-              link: "/tennis-bet",
-              odds: game.odds,
-            })),
-          },
-          {
-            name: "Cricket",
-            games: inPlayCricketGames.map((game) => ({
-              gameid: game.id,
-              teams: game.match,
-              status: "In-Play",
-              link: "/cricket-bet",
-              odds: game.odds,
-            })),
-          },
-          {
-            name: "Soccer",
-            games: inPlaySoccerGames.map((game) => ({
-              gameid: game.id,
-              teams: game.match,
-              status: "In-Play",
-              link: "/soccerbet",
-              odds: game.odds,
-            })),
-          },
-        ];
-      }
-
-      const arr = [];
-      if (isGameOn(1)) {
-        arr.push({
-          name: "Tennis",
-          games: inPlayTennisGames.map((game) => ({
-            gameid: game.id,
-            teams: game.match,
-            status: "In-Play",
-            link: "/tennis-bet",
-            odds: game.odds,
-          })),
-        });
-      }
-      if (isGameOn(0)) {
-        arr.push({
-          name: "Cricket",
-          games: inPlayCricketGames.map((game) => ({
-            gameid: game.id,
-            teams: game.match,
-            status: "In-Play",
-            link: "/cricket-bet",
-            odds: game.odds,
-          })),
-        });
-      }
-      if (isGameOn(2)) {
-        arr.push({
-          name: "Soccer",
-          games: inPlaySoccerGames.map((game) => ({
-            gameid: game.id,
-            teams: game.match,
-            status: "In-Play",
-            link: "/soccerbet",
-            odds: game.odds,
-          })),
-        });
-      }
-      return arr;
-    })(),
-
+    "In-Play": [
+      { name: "Cricket", icon: <BiCricketBall size={18} />, games: inPlayCricketGames, id: 0 },
+      { name: "Tennis", icon: <MdOutlineSportsTennis size={18} />, games: inPlayTennisGames, id: 1 },
+      { name: "Soccer", icon: <IoIosFootball size={18} />, games: inPlaySoccerGames, id: 2 },
+    ].filter(item => isGameOn(item.id)),
     "Today": [
-      buildGameCategory("Tennis", todayTennisGames, "/tennis-bet", 1),
-      buildGameCategory("Cricket", todayPlayCricketGames, "/cricket-bet", 0),
-      buildGameCategory("Soccer", todayPlaySoccerGames, "/soccerbet", 2),
-    ].filter(Boolean), // remove null entries
-
-    "Tommorow": [
-      buildGameCategory("Tennis", tommrowPlayTennisGames, "/tennis-bet", 1),
-      buildGameCategory("Cricket", tommrowPlayCricketGames, "/cricket-bet", 0),
-      buildGameCategory("Soccer", tommrowPlaySoccerGames, "/soccerbet", 2),
-    ].filter(Boolean), // remove null entries
+      { name: "Cricket", icon: <BiCricketBall size={18} />, games: todayPlayCricketGames, id: 0 },
+      { name: "Tennis", icon: <MdOutlineSportsTennis size={18} />, games: todayTennisGames, id: 1 },
+      { name: "Soccer", icon: <IoIosFootball size={18} />, games: todayPlaySoccerGames, id: 2 },
+    ].filter(item => isGameOn(item.id)),
   };
 
-
-
-  const handleClick = (bet, link, match, id) => {
-    if (bet) {
-      navigate(`${link}/${match}/${id}`);
-    } else {
-      navigate(`/tennis`);
-    }
+  const handleClick = (match, link) => {
+    navigate(`${link}/${match.match}/${match.id}`);
   };
 
+  // --- UI HELPER COMPONENTS ---
 
-  useEffect(() => {
-    dispatch(getUser())
-  }, [dispatch])
+  const OddsBox = ({ value, stake, type, isLocked }) => {
+    // Colors from your screenshot
+    const bgMap = {
+      back: "bg-[#a5d8ff]", // Light Blue
+      lay: "bg-[#fcc2d7]",  // Light Pink
+      locked: "bg-[#748c94]", // Darker Gray-ish Blue
+    };
 
+    return (
+      <div className={`relative flex flex-col justify-center items-center flex-1 h-[44px] border-r border-white ${isLocked ? bgMap.locked : bgMap[type]}`}>
+        {isLocked ? (
+          <MdLock className="text-white/60" size={16} />
+        ) : (
+          <>
+            <div className="text-[#212529] text-[13px] font-bold leading-none">{value || "-"}</div>
+            <div className="text-[#495057] text-[9px] mt-1 font-semibold">{stake || "0"}</div>
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="mx-auto">
-      {/* Tab Section */}
-      <div className="grid grid-cols-3 md:grid-cols-6 mb-4 font-semibold text-sm mt-2">
+    <div className="bg-[#f1f3f5] min-h-screen">
+      {/* Tab bar consistent with screenshot style */}
+      <div className="flex bg-[#2c3e50] border-b border-gray-700">
         {Object.keys(categories).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-1 text-[13px] font-semibold ${activeTab === tab
-              ? "bg-[#3b5160] text-white"
-              : "bg-gray-200 border-[1px] border-[#3b5160]"
-              }`}
+            className={`flex-1 py-2 text-[12px] font-bold transition-all ${
+              activeTab === tab ? "bg-[#34495e] text-[#f1c40f] border-b-2 border-[#f1c40f]" : "text-white"
+            }`}
           >
-            {tab}
+            {tab.toUpperCase()}
           </button>
         ))}
       </div>
 
-      {/* Category Section */}
-      {categories[activeTab]?.map((category, index) => (
-        <div key={index} className="mb-4">
-          {/* Category Header */}
-          <div className="bg-color text-white text-sm font-bold px-4 py-0.5">
-            {category.name}
-          </div>
-          <div className="hidden md:grid grid-cols-12 bg-[#dddcd6] text-gray-700 font-bold text-center text-[13px]">
-            <div className="col-span-6 text-left pl-2"></div>
-            <div className="col-span-2 text-center">1</div>
-            <div className="col-span-2 text-center">X</div>
-            <div className="col-span-2 text-center">2</div>
-          </div>
-
-          {/* Games List */}
-          <div className="bg-gray-100 p-3">
-            {cricketLoading || tennisLoading || soccerLoading ? (
-              <div className="text-center py-4">Loading...</div>
-            ) : cricketError || tennisError || soccerError ? (
-              <div className="text-center text-red-500 py-4">
-                {cricketError || tennisError || soccerError}
+      <div className="max-w-[1400px] mx-auto px-0 sm:px-1 mt-2">
+        {categories[activeTab]?.map((cat, idx) => (
+          <div key={idx} className="mb-3 overflow-hidden shadow-sm border border-gray-300">
+            
+            {/* Header Section from Screenshot */}
+            <div className="flex items-center bg-black text-white h-[36px]">
+              <div className="relative flex items-center w-full lg:w-[60%] bg-[#7e1d51] px-3 h-full z-10">
+                <span className="shrink-0">{cat.icon}</span>
+                <span className="ml-2 text-[13px] font-bold uppercase">{cat.name}</span>
+                {/* Skewed edge effect */}
+                <div className="absolute right-[-12px] top-0 h-full w-[24px] bg-[#7e1d51] transform skew-x-[-25deg] z-[-1] hidden lg:block" />
               </div>
-            ) : (
-              category.games.map((game, i) => (
-                <div key={i}>
-                  {/* {console.log("game", game)} */}
-                  <div
-                    onClick={() =>
-                      handleClick(game, game.link, game.teams, game.gameid)
-                    }
-                    // to={game.link}
-                    // state={{ gameid: game.gameid }} // Pass the gameid here
-                    className="grid grid-cols-6 md:grid-cols-12 gap-1 items-center border-b last:border-none border-gray-300 py-0.5 text-[13px]"
-                  >
-                    <span className="flex-1 col-span-5 text-[#2789ce] font-semibold">
-                      {game.teams}     <span className="text-gray-400 ml-1 font-[400] text-xs">
-                        {game.date}
-                      </span>
-                    </span>
-                    <span className="col-span-1 font-medium text-gray-600">
-                      {game.status === "In-Play" ? (
-                        <span
-                          className="font-bold text-green-600"
-                          style={{
-                            animation: "blink 1s infinite alternate",
-                          }}
-                        >
-                          In-Play
-                        </span>
-                      ) : (
-                        game.status
-                      )}
-                    </span>
+              <div className="hidden lg:flex w-[40%] justify-around text-center font-bold text-[13px]">
+                <div className="flex-1">1</div>
+                <div className="flex-1">X</div>
+                <div className="flex-1">2</div>
+              </div>
+            </div>
 
-                    {game.odds.slice(0, 3).map((odd, j) => (
-                      <div key={j} className="md:flex hidden col-span-2 px-2">
-                        <div className="w-[50%]">
-                          <div className="bg-[#72bbef] text-center py-0.5 cursor-pointer">
-                            {odd.home}
-                          </div>
-                        </div>
-                        <div className="w-[50%]">
-                          <div className="bg-[#faa9ba] text-center py-0.5 cursor-pointer">
-                            {odd.away}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+            {/* Match Rows */}
+            {cat.games.map((match, mIdx) => (
+              <div 
+                key={mIdx} 
+                className="flex flex-col lg:flex-row bg-white border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleClick(match, cat.name === "Cricket" ? "/cricket-bet" : cat.name === "Tennis" ? "/tennis-bet" : "/soccerbet")}
+              >
+                {/* Match Info (60%) */}
+                <div className="flex items-center justify-between w-full lg:w-[60%] p-2 sm:p-3">
+                  <div className="flex flex-col min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] font-bold text-gray-900 uppercase truncate">{match.match}</span>
+                      {(match.inplay || match.iplay) && (
+                         <span className="w-2 h-2 rounded-full bg-[#28a745] animate-pulse" />
+                      )}
+                    </div>
+                    <span className="text-[10px] text-gray-500 font-bold uppercase mt-0.5">{match.tournament || "General"}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <BiTv size={18} className="text-blue-500" />
+                    <div className="text-right leading-tight min-w-[60px]">
+                      <div className="text-[9px] font-bold text-gray-500">{match.date}</div>
+                      <div className="text-[10px] font-bold text-gray-700">{match.time || "LIVE"}</div>
+                    </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-      ))}
 
-   <Games />
+                {/* Betting Grid (40%) */}
+                <div className="flex w-full lg:w-[40%] border-t lg:border-t-0 border-gray-100">
+                  {/* Market 1 */}
+                  <div className="flex flex-1 gap-[1px]">
+                    <OddsBox type="back" value={match.odds?.[0]?.home} stake={match.odds?.[0]?.homeStake} />
+                    <OddsBox type="lay" value={match.odds?.[0]?.away} stake={match.odds?.[0]?.awayStake} />
+                  </div>
+                  {/* Market X (Draw) - Often Locked in Cricket/Tennis */}
+                  <div className="flex flex-1 gap-[1px] mx-[1px]">
+                    <OddsBox isLocked={cat.name !== "Soccer"} type="back" value={match.odds?.[1]?.home} stake={match.odds?.[1]?.homeStake} />
+                    <OddsBox isLocked={cat.name !== "Soccer"} type="lay" value={match.odds?.[1]?.away} stake={match.odds?.[1]?.awayStake} />
+                  </div>
+                  {/* Market 2 */}
+                  <div className="flex flex-1 gap-[1px]">
+                    <OddsBox type="back" value={match.odds?.[2]?.home} stake={match.odds?.[2]?.homeStake} />
+                    <OddsBox type="lay" value={match.odds?.[2]?.away} stake={match.odds?.[2]?.awayStake} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <Games />
       <PageFooter />
     </div>
   );
