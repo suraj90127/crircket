@@ -1,5 +1,6 @@
 // import User from "../models/userModel.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
+
 import jwt from "jsonwebtoken";
 import SubAdmin from "../models/subAdminModel.js";
 import passwordHistory from "../models/passwordHistory.js";

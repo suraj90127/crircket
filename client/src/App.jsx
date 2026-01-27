@@ -45,6 +45,7 @@ import OpenBet from "./pages/OpenBet";
 import Register from "./pages/Regiterpage";
 import ForgotPassword from "./pages/Forgetpassword";
 import Casinogame from "./Games/Casinogame";
+import Originalgames from "./Games/Originalgames";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
                   <Route path="/tennis" element={<Tennis />} />
                   <Route path="/soccer" element={<Soccer />} />
                   <Route path="/live-casinogame" element={<Casinogame />} />
+                  <Route path="/originalgames" element={<Originalgames />} />
                   
                   {/* ================= PROTECTED ROUTES ================= */}
                   <Route element={<PrivateRoute />}>

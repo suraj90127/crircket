@@ -3,12 +3,12 @@ import { OriginalsGames } from "../Data/GamesData";
 import { FaPlay, FaSearch } from "react-icons/fa";
 
 const Originalgames = () => {
-  const [activeTab, setActiveTab] = useState("Live Casino");
+  const [activeTab, setActiveTab] = useState("Originals Games");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const gamesPerPage = 20;
 
-  const tabs = ["Live Casino"];
+  const tabs = ["Originals Games"];
 
   // Filter logic for Search + Tab
   const filteredData = OriginalsGames.filter(game => 
