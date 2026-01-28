@@ -60,7 +60,9 @@ export const placeBet = async (req, res) => {
 
       try {
         const response = await axios.post(
-          `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
+          // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
+          `http://130.250.191.174:3009/placed_bets?key=uniique5557878&sid=${sid}`,
+          // `https://aura444.org/api/user/place-bet?key=uniique5557878&sid=${sid}`,
           {
             event_id: gameId,
             event_name: eventName,

@@ -6,6 +6,10 @@ export const getCricketData = async (req, res) => {
     const response = await axios.get(
       "https://api.cricketid.xyz/esid?sid=4&key=uniique5557878"
     );
+    // const response = await axios.get(
+    //   "http://130.250.191.174:3009/esid?key=uniique5557878&sid=4"
+      
+    // );
 
     const admin = await adminModel.findOne({}, "type").lean();
     if (!admin) {

@@ -79,7 +79,8 @@ const MatchOdd = ({ matchOddsList, gameid, match }) => {
 
   const placeBet = async (gameType, marketName, maxAmo) => {
 
-    // console.log("maxAmo", maxAmo);
+    console.log("maxAmo", maxAmo);
+    console.log("betAmount", betAmount);
 
     if (betAmount > maxAmo) {
       toast.error(`Bet amount cannot exceed ${maxAmo}`);
