@@ -25,8 +25,13 @@ const Cricket = () => {
     dispatch(fetchCricketData());
   }, [dispatch]);
 
-  const handleClick = (match) => {
-    navigate(`/match-details/${match.id}`);
+  const handleClick = (bet, match) => {
+    // console.log("iii", match);
+    if (bet) {
+      navigate(`/cricket-bet/${match}/${bet.id}`);
+    } else {
+      alert("This game is suspended");
+    }
   };
 
   const shouldShowLock = (value) => {
@@ -78,7 +83,7 @@ const Cricket = () => {
   const MatchRow = ({ match }) => (
     <div
       className="flex flex-col lg:flex-row bg-white border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-      onClick={() => handleClick(match)}
+      onClick={() => handleClick(match, match.match)}
     >
       <div className="flex items-center justify-between w-full lg:w-[60%] p-2 sm:p-3">
         <div className="flex flex-col min-w-0 flex-1">

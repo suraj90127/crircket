@@ -1,7 +1,5 @@
 
 
-"use client";
-
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCricketData } from "../redux/reducer/cricketSlice";
@@ -34,7 +32,7 @@ export default function Home() {
     dispatch(fetchSoccerData());
   }, [dispatch]);
   const handleClick = (bet, match) => {
-    console.log("iii", match);
+    // console.log("iii", match);
     if (bet) {
       navigate(`/cricket-bet/${match}/${bet.id}`);
     } else {
