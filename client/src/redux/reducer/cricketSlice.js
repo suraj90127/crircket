@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-// import api from "../api";
-const api = axios.create({
-    // baseURL: "http://localhost:5000/api",
-    baseURL: "https://aura444.org/api",
-});
+import api from "../api";
+// const api = axios.create({
+//     // baseURL: "http://localhost:5000/api",
+//     baseURL: "https://aura444.org/api",
+// });
 
 // Async thunk to fetch cricket data
 
@@ -13,7 +13,7 @@ export const fetchCricketData = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get("/cricket/matches"); // Your backend API
-      // console.log("responce", response);
+      console.log("responce", response);
 
 
       return response.data.matches;
