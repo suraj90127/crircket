@@ -1,3 +1,4 @@
+
 // Navbar.jsx
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -121,6 +122,7 @@ const Navbar = ({ onNavItemClick }) => {
     { name: "Original", path: "/games/OriginalsGames", icon: <MdOutlineLocalFireDepartment /> },
     { name: "Horse Racing", path: "/horse-racing", icon: <FaHorseHead /> },
     { name: "Casino", path: "/games/liveCasino", icon: <MdCasino /> },
+    
     { name: "Int Casino", path: "/int-casino", icon: <MdCasino /> },
     { name: "Virtual", path: "/virtual", icon: <MdOutlineSportsEsports /> },
     { name: "Boxing", path: "/boxing", icon: <GiBoxingGlove /> },
@@ -226,50 +228,83 @@ const Navbar = ({ onNavItemClick }) => {
                     <BsPersonCircle /> Account <MdOutlineArrowDropDown className="text-lg" />
                   </button>
                   <AnimatePresence>
-                    {showProfileDropdown && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 mt-2 w-48 bg-white shadow-2xl rounded overflow-hidden z-50 border border-gray-200"
-                      >
-                        <p className="bg-gray-100 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase">Exchange</p>
-                        <ul className="text-xs">
-                          <li className="border-b border-gray-100 hover:bg-gray-50">
-                            <Link to="/profile" className="block px-4 py-2" onClick={() => setShowProfileDropdown(false)}>
-                              My Profile
-                            </Link>
-                          </li>
-                          <li className="border-b border-gray-100 hover:bg-gray-50">
-                            <Link to="/statement" className="block px-4 py-2" onClick={() => setShowProfileDropdown(false)}>
-                              Account Statement
-                            </Link>
-                          </li>
-                          <li className="border-b border-gray-100 hover:bg-gray-50">
-                            <Link to="/bet-history" className="block px-4 py-2" onClick={() => setShowProfileDropdown(false)}>
-                              Bet History
-                            </Link>
-                          </li>
-                          <li className="border-b border-gray-100 hover:bg-gray-50">
-                            <Link to="/rolling" className="block px-4 py-2" onClick={() => setShowProfileDropdown(false)}>
-                              Rolling
-                            </Link>
-                          </li>
-                          <li className="hover:bg-gray-50">
-                            <button 
-                              onClick={() => {
-                                logout();
-                                setShowProfileDropdown(false);
-                              }} 
-                              className="w-full text-left px-4 py-2 text-red-600"
-                            >
-                              Logout
-                            </button>
-                          </li>
-                        </ul>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+  {showProfileDropdown && (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.2 }}
+      className="absolute right-0 mt-2 w-48 bg-white shadow-2xl rounded-lg overflow-hidden z-50 border border-gray-200"
+    >
+      {/* Section Title */}
+      <div className="bg-gray-100 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+        Exchange
+      </div>
+
+      {/* Menu */}
+      <div className="py-1 text-gray-700 text-xs">
+        <Link
+          to="/profile"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 hover:bg-gray-50 transition"
+        >
+          My Profile
+        </Link>
+
+        <Link
+          to="/statement"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 hover:bg-gray-50 transition"
+        >
+          Account Statement
+        </Link>
+
+        <Link
+          to="/bet-history"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 hover:bg-gray-50 transition"
+        >
+          Bet History
+        </Link>
+
+        <Link
+          to="/withdrawal"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 hover:bg-gray-50 transition"
+        >
+          Withdrawal
+        </Link>
+
+        <Link
+          to="/deposite"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 hover:bg-gray-50 transition"
+        >
+          Deposit
+        </Link>
+
+        <Link
+          to="/rolling"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 hover:bg-gray-50 transition border-b border-gray-100"
+        >
+          Rolling
+        </Link>
+
+        {/* Logout */}
+        <button
+          onClick={() => {
+            logout();
+            setShowProfileDropdown(false);
+          }}
+          className="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 transition"
+        >
+          Logout
+        </button>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
                 </div>
               </div>
 
@@ -290,75 +325,104 @@ const Navbar = ({ onNavItemClick }) => {
                   </button>
                   
                   <AnimatePresence>
-                    {showProfileDropdown && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 5 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-64 bg-white shadow-2xl rounded-lg overflow-hidden z-50 border border-gray-300"
-                      >
-                        {/* Profile Header */}
-                        <div className="bg-gradient-to-r from-[#701a52] to-[#8a1f63] px-4 py-3 text-white">
-                          <p className="font-bold text-sm">{userInfo?.userName || 'User'}</p>
-                          <div className="flex justify-between text-xs mt-1">
-                            <span>Balance: <span className="text-green-300">₹{userInfo?.balance?.toFixed(2)}</span></span>
-                            <span>Exposure: <span className="text-red-300">₹{userInfo?.exposure?.toFixed(2)}</span></span>
-                          </div>
-                        </div>
-                        
-                        {/* Menu Items */}
-                        <div className="py-2">
-                          <div className="border-b border-gray-100">
-                            <Link 
-                              to="/profile" 
-                              className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                              onClick={() => setShowProfileDropdown(false)}
-                            >
-                              <BsPersonCircle className="text-gray-600 text-base" />
-                              <span>My Profile</span>
-                            </Link>
-                            <Link 
-                              to="/statement" 
-                              className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                              onClick={() => setShowProfileDropdown(false)}
-                            >
-                              <BsCoin className="text-gray-600 text-base" />
-                              <span>Account Statement</span>
-                            </Link>
-                            <Link 
-                              to="/bet-history" 
-                              className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                              onClick={() => setShowProfileDropdown(false)}
-                            >
-                              <FaSearchPlus className="text-gray-600 text-base" />
-                              <span>Bet History</span>
-                            </Link>
-                            <Link 
-                              to="/rolling" 
-                              className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors border-b border-gray-100"
-                              onClick={() => setShowProfileDropdown(false)}
-                            >
-                              <IoMdRefresh className="text-gray-600 text-base" />
-                              <span>Rolling</span>
-                            </Link>
-                          </div>
-                          
-                          {/* Logout Button */}
-                          <button
-                            onClick={() => {
-                              logout();
-                              setShowProfileDropdown(false);
-                            }}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                          >
-                            <MdOutlineLogout className="text-base" />
-                            <span>Logout</span>
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+  {showProfileDropdown && (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95, y: 5 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: 5 }}
+      transition={{ duration: 0.2 }}
+      className="absolute right-0 mt-2 w-64 bg-white shadow-2xl rounded-lg overflow-hidden z-50 border border-gray-300"
+    >
+      {/* Profile Header */}
+      <div className="bg-gradient-to-r from-[#701a52] to-[#8a1f63] px-4 py-3 text-white">
+        <p className="font-bold text-sm">
+          {userInfo?.userName || "User"}
+        </p>
+        <div className="flex justify-between text-xs mt-1">
+          <span>
+            Balance:{" "}
+            <span className="text-green-300">
+              ₹{userInfo?.balance?.toFixed(2)}
+            </span>
+          </span>
+          <span>
+            Exposure:{" "}
+            <span className="text-red-300">
+              ₹{userInfo?.exposure?.toFixed(2)}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      {/* Menu */}
+      <div className="py-1 text-gray-700">
+        <Link
+          to="/profile"
+          onClick={() => setShowProfileDropdown(false)}
+          className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 transition"
+        >
+          <BsPersonCircle className="text-gray-600 text-base" />
+          My Profile
+        </Link>
+
+        <Link
+          to="/statement"
+          onClick={() => setShowProfileDropdown(false)}
+          className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 transition"
+        >
+          <BsCoin className="text-gray-600 text-base" />
+          Account Statement
+        </Link>
+
+        <Link
+          to="/bet-history"
+          onClick={() => setShowProfileDropdown(false)}
+          className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 transition"
+        >
+          <FaSearchPlus className="text-gray-600 text-base" />
+          Bet History
+        </Link>
+
+        <Link
+          to="/rolling"
+          onClick={() => setShowProfileDropdown(false)}
+          className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 transition border-b border-gray-100"
+        >
+          <IoMdRefresh className="text-gray-600 text-base" />
+          Rolling
+        </Link>
+
+        <Link
+          to="/withdrawal"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 text-sm hover:bg-gray-50 transition border-b border-gray-100"
+        >
+          Withdrawal
+        </Link>
+
+        <Link
+          to="/deposite"
+          onClick={() => setShowProfileDropdown(false)}
+          className="block px-4 py-2.5 text-sm hover:bg-gray-50 transition border-b border-gray-100"
+        >
+          Deposit
+        </Link>
+
+        {/* Logout */}
+        <button
+          onClick={() => {
+            logout();
+            setShowProfileDropdown(false);
+          }}
+          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
+        >
+          <MdOutlineLogout className="text-base" />
+          Logout
+        </button>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
                 </div>
               </div>
             </div>

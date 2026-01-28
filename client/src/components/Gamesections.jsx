@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaPlay, FaSearch, FaArrowLeft } from "react-icons/fa";
 import {
@@ -11,8 +11,9 @@ import {
   GameShowdata,
   TableGames,
   SlotsGames,
-  BingoGames
+  BingoGames,
 } from "../Data/GamesData";
+
 const Gamesections = () => {
   const { providerId } = useParams();
   const navigate = useNavigate();
@@ -22,39 +23,72 @@ const Gamesections = () => {
 
   const gamesPerPage = 20;
 
-  // Merge all games
-  const allGames = [
-  ...OriginalsGames,
-  ...liveCasino,
-  ...Sexy,
-  ...Exclusivegame,
-  ...Hotgame,
-  ...Toppicker,
-  ...GameShowdata,
-  ...TableGames,
-  ...SlotsGames,
-  ...BingoGames,
-];
+  // 🔹 Map for section-wise routing
+  const gamesBySection = {
+    OriginalsGames,
+    liveCasino,
+    Sexy,
+    Exclusivegame,
+    Hotgame,
+    Toppicker,
+    GameShowdata,
+    TableGames,
+    SlotsGames,
+    BingoGames,
+  };
 
-  console.log("allGamesallGamesallGamesallGames",allGames);
-  
+  // 🔹 Merge all games once
+  const allGames = useMemo(
+    () => [
+      ...OriginalsGames,
+      ...liveCasino,
+      ...Sexy,
+      ...Exclusivegame,
+      ...Hotgame,
+      ...Toppicker,
+      ...GameShowdata,
+      ...TableGames,
+      ...SlotsGames,
+      ...BingoGames,
+    ],
+    []
+  );
 
-  // Filter by provider + search
-  const filteredGames = allGames.filter((game) => {
-    const matchesProvider = providerId
-      ? game.provider?.toLowerCase() === providerId.toLowerCase()
-      : true;
+  // 🔹 Decide base list (array OR provider)
+  const baseGames = gamesBySection[providerId]
+    ? gamesBySection[providerId]
+    : allGames;
 
-    const matchesSearch = game.game_name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+  // 🔹 Filter by provider + search
+  const filteredGames = useMemo(() => {
+    return baseGames.filter((game) => {
+      const matchesProvider = gamesBySection[providerId]
+        ? true
+        : providerId
+        ? game.provider?.toLowerCase() === providerId.toLowerCase()
+        : true;
 
-    return matchesProvider && matchesSearch;
-  });
+      const matchesSearch = game.game_name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
+      return matchesProvider && matchesSearch;
+    });
+  }, [baseGames, providerId, searchTerm]);
+
+  // 🔹 Reset page on filter change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, providerId]);
+
+  const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
+
+  // 🔹 Prevent page overflow
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages || 1);
+    }
+  }, [totalPages, currentPage]);
 
   const indexOfLastGame = currentPage * gamesPerPage;
   const indexOfFirstGame = indexOfLastGame - gamesPerPage;
@@ -62,7 +96,6 @@ const Gamesections = () => {
     indexOfFirstGame,
     indexOfLastGame
   );
-  const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
 
   const handlePlayGame = (game) => {
     navigate(`/play/${game.game_uid || game.id}`, {
@@ -74,12 +107,11 @@ const Gamesections = () => {
   };
 
   return (
-    <div className="mb-10 p-2 md:p-4 bg-[#f8fafc] min-h-screen font-sans">
+    <div className="mb-10 pb-16 p-2 md:p-4 bg-[#f8fafc] min-h-screen font-sans">
       <div className="max-w-[1400px] mx-auto">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 gap-4">
-          
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
@@ -161,44 +193,61 @@ const Gamesections = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-10 flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-                className="px-4 py-2 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
-              >
-                PREV
-              </button>
+  <div className="mt-10 flex flex-col items-center gap-4">
+    <div className="flex items-center gap-2">
+      <button
+        disabled={currentPage === 1}
+        onClick={() => setCurrentPage((p) => p - 1)}
+        className="px-4 py-2 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+      >
+        PREV
+      </button>
 
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`w-10 h-10 rounded text-xs font-bold transition-all ${
-                    currentPage === i + 1
-                      ? "bg-red-600 text-white shadow-md shadow-red-200"
-                      : "bg-white text-gray-600 border border-gray-200 hover:border-red-300"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
+      {/* Current Page */}
+      <button
+        onClick={() => setCurrentPage(currentPage)}
+        className="w-10 h-10 rounded text-xs font-bold bg-red-600 text-white shadow-md shadow-red-200 transition-all"
+      >
+        {currentPage}
+      </button>
 
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                className="px-4 py-2 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
-              >
-                NEXT
-              </button>
-            </div>
+      {/* Next Page - Only show if exists */}
+      {currentPage < totalPages && (
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          className="w-10 h-10 rounded text-xs font-bold bg-white text-gray-600 border border-gray-200 hover:border-red-300 transition-all"
+        >
+          {currentPage + 1}
+        </button>
+      )}
 
-            <p className="text-[11px] text-gray-400 font-semibold tracking-widest uppercase">
-              Page {currentPage} of {totalPages}
-            </p>
-          </div>
-        )}
+      {/* Ellipsis for more pages ahead */}
+      {currentPage < totalPages - 1 && (
+        <span className="px-2 text-gray-400 text-xs font-bold">...</span>
+      )}
+
+      {/* Last Page - Only show if not current or next */}
+      {currentPage < totalPages - 1 && (
+        <button
+          onClick={() => setCurrentPage(totalPages)}
+          className="w-10 h-10 rounded text-xs font-bold bg-white text-gray-600 border border-gray-200 hover:border-red-300 transition-all"
+        >
+          {totalPages}
+        </button>
+      )}
+
+      <button
+        disabled={currentPage === totalPages}
+        onClick={() => setCurrentPage((p) => p + 1)}
+        className="px-4 py-2 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+      >
+        NEXT
+      </button>
+    </div>
+
+    
+  </div>
+)}
       </div>
     </div>
   );
