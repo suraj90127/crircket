@@ -122,7 +122,7 @@ const Sidebar = ({ activeNavItem }) => {
       {/* Sidebar Container - Sticky on desktop */}
       <aside className={`
         fixed md:sticky top-0 left-0 z-40 h-screen bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out
-        w-64 flex flex-col shadow-xl md:translate-x-0 md:h-[calc(100vh-5rem)]
+        w-64 flex flex-col md:translate-x-0 md:h-[calc(100vh-5rem)]
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}>
         
@@ -226,7 +226,7 @@ const Sidebar = ({ activeNavItem }) => {
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             <div className="text-xs text-slate-600">
               <p className="font-semibold">Account ID: <span className="text-black">{userInfo?.userId || "N/A"}</span></p>
-              <p className="mt-1">Balance: <span className="text-green-600 font-bold">₹{userInfo?.balance?.toFixed(2) || "0.00"}</span></p>
+              <p className="mt-1">Balance: <span className="text-green-600 font-bold">₹{userInfo?.avbalance?.toFixed(2) || "0.00"}</span></p>
               <p className="text-red-500 text-[10px]">Exposure: ₹{userInfo?.exposure?.toFixed(2) || "0.00"}</p>
             </div>
           </div>

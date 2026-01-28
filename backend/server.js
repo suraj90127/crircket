@@ -65,16 +65,16 @@ app.use("/api",casinoRoutes);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../dashboard/dist")));
-app.get("*", (req, res) =>
-  res.sendFile(path.join(__dirname, "../dashboard/dist/index.html"))
-);
-// app.use(express.static(path.join(__dirname, "../client/dist")));
 // app.get("*", (req, res) =>
-//   res.sendFile(path.join(__dirname, "../client/dist/index.html"))
+//   res.sendFile(path.join(__dirname, "../dashboard/dist/index.html"))
 // );
+app.use(express.static(path.join(__dirname, "../client/dist")));
+app.get("*", (req, res) =>
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"))
+);
 
 // ✅ Setup WebSocket
 setupWebSocket(server); // 🧠 Pass server to WebSocket file
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
