@@ -84,6 +84,8 @@ function App() {
         <Route path="/games/:providerId" element={<Gamesections />} />
       
         <Route path="/play/:gameId" element={<GamePlayer />} />
+
+        
                   
                   {/* ================= PROTECTED ROUTES ================= */}
                   <Route element={<PrivateRoute />}>
