@@ -32,10 +32,11 @@ export default function Home() {
     dispatch(fetchTennisData());
     dispatch(fetchSoccerData());
   }, [dispatch]);
-  const handleClick = (bet, match) => {
+  const handleClick = (route) => {
     // console.log("iii", match);
-    if (bet) {
-      navigate(`/cricket-bet/${match}/${bet.id}`);
+    if (route) {
+      // navigate(`/cricket-bet/${match}/${bet.id}`);
+      navigate(route);
     } else {
       alert("This game is suspended");
     }
@@ -87,10 +88,10 @@ export default function Home() {
     );
   };
 
-  const MatchRow = ({ match }) => (
+  const MatchRow = ({route, match }) => (
     <div
       className="flex flex-col lg:flex-row bg-white border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-      onClick={() => handleClick(match, match.match)}
+      onClick={() => handleClick(route)}
     >
       {/* LEFT SECTION: Info Area */}
       <div className="flex items-center justify-between w-full lg:w-[60%] p-2 sm:p-3">
@@ -171,19 +172,19 @@ export default function Home() {
                 </div>
              </div>
           </div>
-          {loader ? <Spinner2 /> : matches?.map(m => <MatchRow key={m.id} match={m} />)}
+          {loader ? <Spinner2 /> : matches?.map(m => <MatchRow key={m.id} route={`/cricket-bet/${m.match}/${m.id}`} match={m} />)}
         </section>
 
         {/* Tennis */}
         <section className="mb-4 shadow-sm bg-white rounded-t-lg overflow-hidden border border-gray-200">
           <SportHeader sport="Tennis" icon={<MdOutlineSportsTennis className="text-white" size={20} />} />
-          {tennisLoading ? <Spinner2 /> : tennisData?.map(m => <MatchRow key={m.id} match={m} />)}
+          {tennisLoading ? <Spinner2 /> : tennisData?.map(m => <MatchRow key={m.id} route={`/tennis-bet/${m.match}/${m.id}`} match={m} />)}
         </section>
 
         {/* Soccer */}
         <section className="mb-4 shadow-sm bg-white rounded-t-lg overflow-hidden border border-gray-200">
           <SportHeader sport="Soccer" icon={<IoIosFootball className="text-white" size={20} />} />
-          {soccerLoading ? <Spinner2 /> : soccerData?.map(m => <MatchRow key={m.id} match={m} />)}
+          {soccerLoading ? <Spinner2 /> : soccerData?.map(m => <MatchRow key={m.id} route={`/soccerbet/${m.match}/${m.id}`} match={m} />)}
         </section>
 
       </div>

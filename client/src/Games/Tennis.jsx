@@ -31,7 +31,7 @@ const Tennis = () => {
   const handleClick = (bet, match) => {
     // console.log("iii", match);
     if (bet) {
-      navigate(`/cricket-bet/${match}/${bet.id}`);
+      navigate(`/tennis-bet/${match}/${bet.id}`);
     } else {
       alert("This game is suspended");
     }
