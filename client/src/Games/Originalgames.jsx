@@ -18,8 +18,7 @@ const Originalgames = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab, searchTerm]);
-
-  const indexOfLastGame = currentPage * gamesPerPage;
+const indexOfLastGame = currentPage * gamesPerPage;
   const indexOfFirstGame = indexOfLastGame - gamesPerPage;
   const currentGames = filteredData.slice(indexOfFirstGame, indexOfLastGame);
   const totalPages = Math.ceil(filteredData.length / gamesPerPage);
