@@ -8,97 +8,95 @@ const GameSlider = () => {
 
   const tabs = ["Originals", "Crash Games", "Live Roulette", "MAC88"];
 
-  // Filter games based on active tab
   const getFilteredGames = () => {
     switch (activeTab) {
-      case "Originals":
-        return OriginalsGames;
-      case "Crash Games":
-        return OriginalsGames.filter(
-          game => game.game_type.toLowerCase().includes("crash")
-        );
-      case "Live Roulette":
-        return OriginalsGames.filter(
-          game => game.game_type.toLowerCase().includes("table") ||
-                 game.game_type.toLowerCase().includes("live")
-        );
-      case "MAC88":
-        return OriginalsGames.filter(
-          game => game.provider.toLowerCase().includes("jdb")
-        );
-      default:
-        return OriginalsGames;
+      case "Originals": return OriginalsGames;
+      case "Crash Games": return OriginalsGames.filter(g => g.game_type?.toLowerCase().includes("crash"));
+      case "Live Roulette": return OriginalsGames.filter(g => g.game_type?.toLowerCase().includes("table") || g.game_type?.toLowerCase().includes("live"));
+      case "MAC88": return OriginalsGames.filter(g => g.provider?.toLowerCase().includes("jdb"));
+      default: return OriginalsGames;
     }
   };
 
   const filteredGames = getFilteredGames();
 
   const scroll = (direction) => {
-    const { current } = scrollRef;
-    if (!current) return;
-    
-    if (direction === "left") {
-      current.scrollLeft -= 200;
-    } else {
-      current.scrollLeft += 200;
+    if (scrollRef.current) {
+      const { clientWidth } = scrollRef.current;
+      const moveDistance = direction === "left" ? -clientWidth * 0.6 : clientWidth * 0.6;
+      scrollRef.current.scrollBy({ left: moveDistance, behavior: "smooth" });
     }
   };
 
   return (
-    <div className="mb-2 p-1">
-      <div className="bg-white rounded-md shadow-sm">
-        {/* Tab Header Section */}
-        <div className="flex justify-between items-center border-b border-gray-200 py-1">
-          <div className="flex items-center overflow-x-auto no-scrollbar mr-2">
+    <div className="my-6 px-2 lg:px-4">
+      {/* Dark Premium Wrapper */}
+      <div className="bg-[#1a0514] rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-center bg-[#2d0b23]/40 backdrop-blur-md border-b border-white/5">
+          {/* Tab Navigation */}
+          <div className="flex items-center overflow-x-auto no-scrollbar w-full md:w-auto">
             {tabs.map((tab) => (
-              <div
+              <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`relative ml-1 md:ml-0 px-2 md:px-4 font-bold py-2 cursor-pointer whitespace-nowrap text-[12px] md:text-[14px] transition-colors ${
-                  activeTab === tab ? "text-red-600" : "text-gray-600"
+                className={`relative px-6 py-4 font-bold text-[11px] md:text-xs uppercase tracking-[0.15em] transition-all duration-300 ${
+                  activeTab === tab ? "text-[#ff2ead]" : "text-gray-400 hover:text-gray-200"
                 }`}
               >
                 {tab}
                 {activeTab === tab && (
-                  <div className="absolute w-full h-[3px] bg-red-600 bottom-0 rounded-full left-0 animate-in fade-in duration-300"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#ff2ead] to-transparent shadow-[0_0_15px_#ff2ead]"></div>
                 )}
-              </div>
+              </button>
             ))}
           </div>
 
-          {/* Navigation Arrows */}
-          <div className="flex items-center px-2 flex-1 justify-end gap-2">
+          {/* Navigation Buttons */}
+          <div className="hidden md:flex items-center px-4 gap-2">
             <button
               onClick={() => scroll("left")}
-              className="p-1.5 md:p-2 rounded-md bg-[#82175d] text-white hover:bg-[#6a124c] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[#82175d] text-white transition-all border border-white/10"
             >
-              <FaChevronLeft size={10} />
+              <FaChevronLeft size={12} />
             </button>
             <button
               onClick={() => scroll("right")}
-              className="p-1.5 md:p-2 rounded-md bg-[#82175d] text-white hover:bg-[#6a124c] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[#82175d] text-white transition-all border border-white/10"
             >
-              <FaChevronRight size={10} />
+              <FaChevronRight size={12} />
             </button>
           </div>
         </div>
 
-        {/* Game Thumbnails Grid/Scroll */}
+        {/* Single Row Slider */}
         <div
           ref={scrollRef}
-          className="p-2 overflow-x-auto flex items-center scroll-smooth no-scrollbar gap-2"
+          className="flex flex-nowrap gap-4 p-5 overflow-x-auto no-scrollbar snap-x snap-mandatory"
         >
           {filteredGames.map((game) => (
-            <img
-              key={game.id || game.game_uid}
-              className="w-[120px] sm:w-[140px] md:w-[160px] lg:w-[180px] aspect-[0.9/1] rounded-md cursor-pointer hover:scale-[1.02] transition-transform object-cover flex-shrink-0"
-              src={game.img || game.icon}
-              alt={game.game_name}
-              title={`${game.game_name}\n${game.game_type}\n${game.provider}`}
-              onError={(e) => {
-                e.target.src = game.icon || "https://via.placeholder.com/180x200";
-              }}
-            />
+            <div 
+              key={game.id || game.game_uid} 
+              className="group relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] aspect-[3/4] rounded-xl overflow-hidden cursor-pointer snap-start transition-all duration-500 border border-white/5 hover:border-[#ff2ead]/50 hover:shadow-[0_0_25px_rgba(255,46,173,0.2)]"
+            >
+              {/* Overlay Gradient for depth */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1a0514] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity z-10"></div>
+              
+              <img
+                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
+                src={game.img || game.icon}
+                alt={game.game_name}
+                loading="lazy"
+              />
+
+              {/* Play Button Icon on Hover */}
+              <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+                 <div className="w-12 h-12 bg-[#ff2ead] rounded-full flex items-center justify-center shadow-lg shadow-[#ff2ead]/40">
+                    <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
+                 </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -107,5 +105,3 @@ const GameSlider = () => {
 };
 
 export default GameSlider;
-
-

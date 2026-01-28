@@ -17,6 +17,7 @@ import Games from "../components/Games";
 import PageFooter from "../components/PageFooter";
 import GameSlider from "../components/Gameslider";
 import Spinner2 from "../components/Spinner2";
+import GameProviders from "../components/GameProviders";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -186,6 +187,8 @@ export default function Home() {
         </section>
 
       </div>
+
+      <GameProviders/>
 
       <Games />
       <PageFooter />

@@ -46,6 +46,9 @@ import Register from "./pages/Regiterpage";
 import ForgotPassword from "./pages/Forgetpassword";
 import Casinogame from "./Games/Casinogame";
 import Originalgames from "./Games/Originalgames";
+import GameProviders from "./components/GameProviders";
+import Gamesections from "./components/Gamesections";
+import GamePlayer from "./components/GamePlayer";
 
 function App() {
   return (
@@ -75,6 +78,12 @@ function App() {
                   <Route path="/soccer" element={<Soccer />} />
                   <Route path="/live-casinogame" element={<Casinogame />} />
                   <Route path="/originalgames" element={<Originalgames />} />
+
+                  <Route path="/provider" element={<GameProviders />} />
+ 
+        <Route path="/games/:providerId" element={<Gamesections />} />
+      
+        <Route path="/play/:gameId" element={<GamePlayer />} />
                   
                   {/* ================= PROTECTED ROUTES ================= */}
                   <Route element={<PrivateRoute />}>
