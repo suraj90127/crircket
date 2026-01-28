@@ -19,7 +19,7 @@ import soccerRoutes from "./routes/soccerRoutes.js";
 import tennisRoutes from "./routes/tennisRoutes.js";
 import betRoute from "./routes/betRoute.js";
 import casinoRoutes from './routes/casinoRoutes.js'
-
+import Allgame from "./routes/Allgameroutes.js"
 
 
 import { cronJobGame1p } from "./controllers/cronJobs.js";
@@ -59,6 +59,7 @@ app.use("/api", soccerRoutes);
 app.use("/api", tennisRoutes);
 app.use("/api", marketAnalizeRoutes); // Ensure this import is defined
 app.use("/api",casinoRoutes);
+app.use("/api/game",Allgame);
 
 
 // Static file serving

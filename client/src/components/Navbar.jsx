@@ -160,6 +160,9 @@ const Navbar = ({ onNavItemClick }) => {
     }
   };
 
+
+  console.log("userInfouserInfouserInfo",userInfo);
+  
   
 
   return (
@@ -168,13 +171,7 @@ const Navbar = ({ onNavItemClick }) => {
       <header className="flex items-center justify-between px-3 py-2 bg-black h-14 shadow-md">
         {/* Logo */}
         <Link to="/" className="shrink-0">
-          <div className="flex items-baseline font-serif">
-            <span className="text-xl sm:text-2xl font-bold tracking-tighter text-[#c9a86a]">RED</span>
-            <div className="flex flex-col items-center justify-center border border-[#c9a86a] px-0.5 mx-0.5 leading-none">
-              <span className="text-[7px] sm:text-[8px] text-[#c9a86a] font-bold">365</span>
-            </div>
-            <span className="text-xl sm:text-2xl font-bold tracking-tighter text-[#c9a86a]">DY</span>
-          </div>
+          <img src="https://i.ibb.co/8Dx8cb2f/REDDY111-LOGO.png" alt="loading" className="w-full h-15" />
         </Link>
 
         {/* Search and Auth Buttons Container */}
