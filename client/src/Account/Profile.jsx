@@ -225,6 +225,9 @@ const AccountDetails = () => {
 
   if (loading) return <div className="flex justify-center py-20"><Spinner2 /></div>;
 
+  console.log("userInfouserInfouserInfo",userInfo);
+  
+
   return (
     <div className="p-6 bg-[#f4f7fe] min-h-screen font-sans text-slate-700 pb-16">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -244,7 +247,7 @@ const AccountDetails = () => {
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Available Balance</p>
-                <p className="text-lg font-bold text-slate-800">0.00</p>
+                <p className="text-lg font-bold text-slate-800">{userInfo?.balance}</p>
               </div>
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Current Exposure</p>
