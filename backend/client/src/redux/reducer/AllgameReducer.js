@@ -1,6 +1,6 @@
 // redux/slices/gameSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { api } from "./../api";
+import  api  from "./../api";
 
 /* ===========================
    CHECK GAME BALANCE
