@@ -360,7 +360,8 @@ export const placeFancyBet = async (req, res) => {
 
       try {
         const response = await axios.post(
-          `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
+          // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
+          `http://130.250.191.174:3009/placed_bets?key=uniique5557878&sid=${sid}`,
           {
             event_id: gameId,
             event_name: eventName,
@@ -578,7 +579,8 @@ export const updateResultOfBets = async (req, res) => {
             const sid = bet.sid;  // ✅ ensure this is defined
 
             const response = await axios.post(
-              `https://api.cricketid.xyz/get-result?key=uniique5557878&sid=${sid}`,
+              // `https://api.cricketid.xyz/get-result?key=uniique5557878&sid=${sid}`,
+              `http://130.250.191.174:3009/get-result?key=uniique5557878&sid=${sid}`,
               {
                 event_id: Number(bet.gameId),
                 event_name: bet.eventName,
