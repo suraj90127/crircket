@@ -15,7 +15,7 @@ import Banner from "../components/Banner";
 import MenuNav from "../components/MenuNav";
 import Games from "../components/Games";
 import PageFooter from "../components/PageFooter";
-import GameSlider from "../components/Gameslider";
+import GameSlider from "../components/GameSlider";
 import Spinner2 from "../components/Spinner2";
 import GameProviders from "../components/GameProviders";
 
