@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import api from "../api";
+// import api from "../api";
+const api = axios.create({
+    // baseURL: "http://localhost:5000/api",
+    baseURL: "https://aura444.org/api",
+});
 
 // Async thunk to fetch cricket data
 

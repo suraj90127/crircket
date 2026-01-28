@@ -1,5 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../api";
+import axios from "axios";
+// import api from "../api";
+
+const api = axios.create({
+    // baseURL: "http://localhost:5000/api",
+    baseURL: "https://aura444.org/api",
+});
 
 // Async thunk to place a bet
 export const createBet = createAsyncThunk(

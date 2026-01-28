@@ -1,6 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 // import axios from "axios";
-import api from "../api"; // Adjust the import based on your project structure
+// import api from "../api"; // Adjust the import based on your project structure
+
+const api = axios.create({
+    // baseURL: "http://localhost:5000/api",
+    baseURL: "https://aura444.org/api",
+});
 
 export const fetchTennisData = createAsyncThunk(
   "tennis/fetchTennisData",
