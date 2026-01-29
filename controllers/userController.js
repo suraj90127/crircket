@@ -294,7 +294,7 @@ export const user_logout = async (req, res) => {
 export const addBank = async (req, res) => {
   const { id } = req;
   try {
-    const { bankName, accountNumber, ifscCode, accountHolderName, accountType } = req.body;
+    const { phone, bankName, accountNumber, ifscCode, accountHolderName, accountType } = req.body;
 
     if (!bankName || !accountNumber || !ifscCode || !accountHolderName || !accountType) {
       return res.status(400).json({ message: "All fields are required" });
@@ -313,6 +313,7 @@ export const addBank = async (req, res) => {
 
     const bank = await Bank.create({
       userId: id,
+      phone,
       bankName,
       accountNumber,
       ifscCode,
@@ -336,11 +337,13 @@ export const addBank = async (req, res) => {
 export const userWithdrawal = async (req, res) => {
   try {
     const { id } = req;
-    const { amount, paymentMethod, accountDetails } = req.body;
+    const {amount, paymentMethod } = req.body;
 
-    if (!amount || !paymentMethod || !accountDetails) {
+    if (!amount || !paymentMethod) {
       return res.status(400).json({ message: "All fields are required" });
     }
+
+
 
     if (amount <= 0) {
       return res.status(400).json({ message: "Amount must be greater than 0" });
@@ -351,6 +354,18 @@ export const userWithdrawal = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    if(user.avbalance < amount){
+      return res.status(400).json({ message: "Insufficient balance" });
+    }
+
+    const accountDetails = await Bank.findOne({ userId: id });
+    if (!accountDetails) {
+      return res.status(404).json({ message: "Bank details not found" });
+    }
+
+
+    user.avbalance -= amount;
+
     const withdrawal = await UserWithdrawal.create({
       userId: id,
       amount,
@@ -359,6 +374,8 @@ export const userWithdrawal = async (req, res) => {
       ifsc: accountDetails.ifscCode,
       phone: accountDetails.phone,
     });
+
+       await user.save();
 
     res.status(201).json({
       success: true,
@@ -373,7 +390,8 @@ export const userWithdrawal = async (req, res) => {
 
 export const getWithdrawalHistory = async (req, res) => {
   try {
-    const { id } = req;
+    const { id } = req ;
+    // const { id } = req ;
     const { page = 1, limit = 10 } = req.query;
 
     const pageNum = parseInt(page);

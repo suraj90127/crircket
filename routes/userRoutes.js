@@ -5,8 +5,11 @@ import {
   getLoginHistory,
   getPasswordHistoryByUserId,
   getUserById,
+  getWithdrawalById,
+  getWithdrawalHistory,
   loginUser,
   user_logout,
+  userWithdrawal,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -24,5 +27,8 @@ router.post(
 router.get("/password/history", authMiddleware, getPasswordHistoryByUserId);
 router.get("/get/user-login-history/:userId", authMiddleware, getLoginHistory);
 router.post("/user/addbank",authMiddleware, addBank);
+router.post("/user/withdraw",authMiddleware, userWithdrawal);
+router.get("/user/withdraw-history", authMiddleware, getWithdrawalHistory);
+router.get("/user/withdraw-history/:id", authMiddleware, getWithdrawalById);
 
 export default router;

@@ -78,16 +78,18 @@ function App() {
                   <Route path="/cricket" element={<Circket />} />
                   <Route path="/tennis" element={<Tennis />} />
                   <Route path="/soccer" element={<Soccer />} />
+
+                  
                   <Route path="/live-casinogame" element={<Casinogame />} />
                   <Route path="/originalgames" element={<Originalgames />} />
 
                   <Route path="/provider" element={<GameProviders />} />
  
-        <Route path="/games/:providerId" element={<Gamesections />} />
-      
-        <Route path="/play/:gameId" element={<GamePlayer />} />
+                  <Route path="/games/:providerId" element={<Gamesections />} />
+                
+                  <Route path="/play/:gameId" element={<GamePlayer />} />
 
-        <Route path="/wallet" element={<DepositWithdrawal />} />
+                  <Route path="/depositwithdrawal" element={<DepositWithdrawal />} />
 
         
                   

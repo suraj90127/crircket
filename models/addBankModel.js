@@ -18,6 +18,10 @@ const bankSchema = new mongoose.Schema(
             unique: true,
             trim: true,
         },
+        phone: {
+        type: Number,
+        required: true
+        },
         ifscCode: {
             type: String,
             required: true,

@@ -265,7 +265,7 @@ const Navbar = ({ onNavItemClick }) => {
                           </Link>
 
                           <Link
-                            to="/withdrawal"
+                            to="/depositwithdrawal"
                             onClick={() => setShowProfileDropdown(false)}
                             className="block px-4 py-2.5 hover:bg-gray-50 transition"
                           >
@@ -273,7 +273,7 @@ const Navbar = ({ onNavItemClick }) => {
                           </Link>
 
                           <Link
-                            to="/deposite"
+                            to="/depositwithdrawal"
                             onClick={() => setShowProfileDropdown(false)}
                             className="block px-4 py-2.5 hover:bg-gray-50 transition"
                           >
@@ -390,7 +390,7 @@ const Navbar = ({ onNavItemClick }) => {
                           </Link>
 
                           <Link
-                            to="/withdrawal"
+                            to="/depositwithdrawal"
                             onClick={() => setShowProfileDropdown(false)}
                             className="block px-4 py-2.5 text-sm hover:bg-gray-50 transition border-b border-gray-100"
                           >
@@ -398,7 +398,7 @@ const Navbar = ({ onNavItemClick }) => {
                           </Link>
 
                           <Link
-                            to="/deposite"
+                            to="/depositwithdrawal"
                             onClick={() => setShowProfileDropdown(false)}
                             className="block px-4 py-2.5 text-sm hover:bg-gray-50 transition border-b border-gray-100"
                           >
