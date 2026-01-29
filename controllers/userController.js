@@ -292,6 +292,9 @@ export const user_logout = async (req, res) => {
 };
 
 export const addBank = async (req, res) => {
+
+  console.log("req.body",req.body);
+  
   const { id } = req;
   try {
     const { phone, bankName, accountNumber, ifscCode, accountHolderName, accountType } = req.body;

@@ -44,6 +44,7 @@ const DepositWithdrawal = () => {
     success,
     pagination
   } = useSelector((state) => state.wallet);
+  const { userInfo } = useSelector((state) => state.auth);
 
   const [activeTab, setActiveTab] = useState("deposit");
   const [showHistory, setShowHistory] = useState(false);
@@ -63,6 +64,9 @@ const DepositWithdrawal = () => {
   });
 
   const [depositHistory, setDepositHistory] = useState([]);
+
+  console.log("userInfo1234567", userInfo);
+  
 
   // Quick deposit amounts
   const quickDepositAmounts = [100, 500, 1000, 5000];
@@ -145,7 +149,7 @@ const DepositWithdrawal = () => {
       toast.error("Please enter valid 11-digit IFSC code");
       return;
     }
-
+      console.log("BANK FORM DATA 👉", bankForm);
     dispatch(addBankAccount(bankForm));
     setShowAddBankPopup(false);
     
@@ -156,8 +160,11 @@ const DepositWithdrawal = () => {
       bankName: "",
       accountNumber: "",
       ifscCode: "",
+      phone: "",
     });
   };
+
+
 
   const handleDeleteBankAccount = (id) => {
     const updatedAccounts = bankAccounts.filter(account => account.id !== id);
@@ -446,7 +453,7 @@ const DepositWithdrawal = () => {
               <div>
                 <p className="text-sm opacity-90">Available Balance</p>
                 <p className="text-4xl font-bold mt-2">
-                  ₹{balance.toLocaleString()}
+                  ₹{userInfo?.avbalance}
                 </p>
               </div>
               <button
@@ -645,7 +652,7 @@ const DepositWithdrawal = () => {
             <div>
               <p className="text-sm opacity-90">Available Balance</p>
               <p className="text-4xl font-bold mt-2">
-                ₹{balance.toLocaleString()}
+                ₹{userInfo?.avbalance}
               </p>
             </div>
             <button
@@ -1137,3 +1144,6 @@ const DepositWithdrawal = () => {
 };
 
 export default DepositWithdrawal;
+
+
+

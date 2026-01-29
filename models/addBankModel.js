@@ -34,7 +34,6 @@ const bankSchema = new mongoose.Schema(
         },
         accountType: {
             type: String,
-            enum: ['Savings', 'Current', 'Checking'],
             required: true,
         },
         isActive: {

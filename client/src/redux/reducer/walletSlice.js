@@ -26,12 +26,26 @@ export const addBankAccount = createAsyncThunk(
   "wallet/addBank",
   async (bankData, { rejectWithValue }) => {
     try {
+      // 🔍 FRONTEND CONFIRMATION
+      console.log("Sending bankData 👉", bankData);
+
+      // ✅ ENUM FIX (VERY IMPORTANT)
+    //   const payload = {
+    //     ...bankData,
+    //     accountType: bankData.accountType?.toLowerCase(), // "bank"
+    //   };
+
       const res = await api.post("/user/addbank", bankData, {
         withCredentials: true,
       });
+
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+      console.error("Add bank error 👉", err.response?.data || err.message);
+
+      return rejectWithValue(
+        err.response?.data?.message || "Something went wrong"
+      );
     }
   }
 );
