@@ -33,8 +33,7 @@ import {
   requestWithdrawal, 
   getWithdrawalHistory,
   clearWalletState,
-  getUserBankDetails,
-  // zilpayRecharge
+  getUserBankDetails
 } from '../redux/reducer/walletSlice';
 
 const DepositWithdrawal = () => {
@@ -80,21 +79,8 @@ const DepositWithdrawal = () => {
 
   // Load initial data
   useEffect(() => {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    // Initial load
-   
     dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
-
-=======
-    dispatch(getUserBankDetails());
-    dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
->>>>>>> Stashed changes
-=======
-    dispatch(getUserBankDetails());
-    dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
->>>>>>> Stashed changes
   }, [dispatch]);
 
   useEffect(() => {
@@ -105,18 +91,6 @@ const DepositWithdrawal = () => {
   useEffect(() => {
     if (success) {
       toast.success(success);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      
-      // अगर success message withdrawal/deposit related है, तो balance refresh करें
-      if (success.toLowerCase().includes("withdrawal") || 
-          success.toLowerCase().includes("deposit") ||
-          success.toLowerCase().includes("bank")) 
-      
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       dispatch(clearWalletState());
     }
     if (error) {
@@ -242,13 +216,6 @@ const DepositWithdrawal = () => {
       toast.success("Bank account deleted successfully");
       // Refresh bank list
       dispatch(getUserBankDetails());
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-     
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     }
     setShowDeleteConfirm(false);
     setBankToDelete(null);
@@ -303,9 +270,6 @@ const DepositWithdrawal = () => {
   };
 
   const confirmDeposit = () => {
-<<<<<<< Updated upstream
-   
-=======
     if (pendingDeposit) {
       setDepositHistory([pendingDeposit, ...depositHistory]);
       setDepositAmount("");
@@ -322,7 +286,6 @@ const DepositWithdrawal = () => {
       
       setPendingDeposit(null);
     }
->>>>>>> Stashed changes
     setShowDepositConfirm(false);
   };
 
@@ -357,15 +320,7 @@ const DepositWithdrawal = () => {
 
   const confirmWithdrawal = () => {
     if (pendingWithdraw) {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      dispatch(requestWithdrawal(pendingWithdraw))
-=======
       dispatch(requestWithdrawal(pendingWithdraw));
->>>>>>> Stashed changes
-=======
-      dispatch(requestWithdrawal(pendingWithdraw));
->>>>>>> Stashed changes
       setWithdrawAmount("");
     }
     setShowWithdrawConfirm(false);
@@ -547,13 +502,6 @@ const DepositWithdrawal = () => {
                   ₹{(userInfo?.avbalance || 0).toLocaleString()}
                 </p>
               </div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-             
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             </div>
           </div>
 
@@ -746,13 +694,6 @@ const DepositWithdrawal = () => {
                 ₹{(userInfo?.avbalance || 0).toLocaleString()}
               </p>
             </div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-           
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
           </div>
         </div>
 
