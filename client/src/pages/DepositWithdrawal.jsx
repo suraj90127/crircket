@@ -81,11 +81,16 @@ const DepositWithdrawal = () => {
   // Load initial data
   useEffect(() => {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     // Initial load
    
     dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
 
+=======
+    dispatch(getUserBankDetails());
+    dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
+>>>>>>> Stashed changes
 =======
     dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
@@ -101,12 +106,15 @@ const DepositWithdrawal = () => {
     if (success) {
       toast.success(success);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       
       // अगर success message withdrawal/deposit related है, तो balance refresh करें
       if (success.toLowerCase().includes("withdrawal") || 
           success.toLowerCase().includes("deposit") ||
           success.toLowerCase().includes("bank")) 
       
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
       dispatch(clearWalletState());
@@ -235,7 +243,10 @@ const DepositWithdrawal = () => {
       // Refresh bank list
       dispatch(getUserBankDetails());
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
      
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     }
@@ -347,7 +358,11 @@ const DepositWithdrawal = () => {
   const confirmWithdrawal = () => {
     if (pendingWithdraw) {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       dispatch(requestWithdrawal(pendingWithdraw))
+=======
+      dispatch(requestWithdrawal(pendingWithdraw));
+>>>>>>> Stashed changes
 =======
       dispatch(requestWithdrawal(pendingWithdraw));
 >>>>>>> Stashed changes
@@ -533,7 +548,10 @@ const DepositWithdrawal = () => {
                 </p>
               </div>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
              
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
             </div>
@@ -729,7 +747,10 @@ const DepositWithdrawal = () => {
               </p>
             </div>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
            
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
           </div>
