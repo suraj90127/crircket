@@ -29,12 +29,12 @@ import {
 import { toast, Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
-  checkBalance, 
   addBankAccount, 
   requestWithdrawal, 
   getWithdrawalHistory,
   clearWalletState,
-  getUserBankDetails
+  getUserBankDetails,
+  // zilpayRecharge
 } from '../redux/reducer/walletSlice';
 
 const DepositWithdrawal = () => {
@@ -82,17 +82,10 @@ const DepositWithdrawal = () => {
   // Load initial data और periodic balance refresh
   useEffect(() => {
     // Initial load
-    dispatch(checkBalance());
+   
     dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
-    
-    // Refresh balance every 30 seconds
-    const intervalId = setInterval(() => {
-      dispatch(checkBalance());
-    }, 30000);
-    
-    // Cleanup interval on unmount
-    return () => clearInterval(intervalId);
+
   }, [dispatch]);
 
   useEffect(() => {
@@ -107,9 +100,7 @@ const DepositWithdrawal = () => {
       // अगर success message withdrawal/deposit related है, तो balance refresh करें
       if (success.toLowerCase().includes("withdrawal") || 
           success.toLowerCase().includes("deposit") ||
-          success.toLowerCase().includes("bank")) {
-        dispatch(checkBalance());
-      }
+          success.toLowerCase().includes("bank")) 
       
       dispatch(clearWalletState());
     }
@@ -236,7 +227,7 @@ const DepositWithdrawal = () => {
       toast.success("Bank account deleted successfully");
       // Refresh bank list और balance
       dispatch(getUserBankDetails());
-      dispatch(checkBalance());
+     
     }
     setShowDeleteConfirm(false);
     setBankToDelete(null);
@@ -291,26 +282,7 @@ const DepositWithdrawal = () => {
   };
 
   const confirmDeposit = () => {
-    if (pendingDeposit) {
-      setDepositHistory([pendingDeposit, ...depositHistory]);
-      setDepositAmount("");
-      
-      toast.success(
-        <div>
-          <div className="font-bold">Deposit Request Submitted!</div>
-          <div>Amount: ₹{pendingDeposit.amount.toLocaleString()}</div>
-          <div>Bonus: ₹{Math.floor(pendingDeposit.amount * 0.1).toLocaleString()}</div>
-          <div>Status: Processing</div>
-        </div>,
-        { duration: 4000 }
-      );
-      
-      // Simulate balance update (In real app, this would come from API)
-      // For now, we'll refresh the balance
-      setTimeout(() => {
-        dispatch(checkBalance());
-      }, 2000);
-    }
+   
     setShowDepositConfirm(false);
     setPendingDeposit(null);
   };
@@ -357,12 +329,7 @@ const DepositWithdrawal = () => {
 
   const confirmWithdrawal = () => {
     if (pendingWithdraw) {
-      dispatch(requestWithdrawal(pendingWithdraw)).then(() => {
-        // Withdrawal success के बाद balance refresh करें
-        setTimeout(() => {
-          dispatch(checkBalance());
-        }, 1000);
-      });
+      dispatch(requestWithdrawal(pendingWithdraw))
       setWithdrawAmount("");
     }
     setShowWithdrawConfirm(false);
@@ -544,13 +511,7 @@ const DepositWithdrawal = () => {
                   ₹{(userInfo?.avbalance || 0).toLocaleString()}
                 </p>
               </div>
-              <button
-                onClick={() => dispatch(checkBalance())}
-                disabled={loading}
-                className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Refreshing...' : 'Refresh'}
-              </button>
+             
             </div>
           </div>
 
@@ -743,13 +704,7 @@ const DepositWithdrawal = () => {
                 ₹{(userInfo?.avbalance || 0).toLocaleString()}
               </p>
             </div>
-            <button
-              onClick={() => dispatch(checkBalance())}
-              disabled={loading}
-              className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </button>
+           
           </div>
         </div>
 
