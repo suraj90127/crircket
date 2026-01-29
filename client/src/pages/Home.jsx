@@ -1,5 +1,4 @@
 
-
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCricketData } from "../redux/reducer/cricketSlice";
@@ -152,7 +151,7 @@ export default function Home() {
     <div className="bg-[#f1f3f5] min-h-screen pb-10">
       <Banner />
       <GameSlider />
-      <MenuNav />
+      {/* <MenuNav /> */}
 
       <div className="max-w-[1400px] mx-auto px-1 sm:px-2 lg:px-4 mt-2">
         

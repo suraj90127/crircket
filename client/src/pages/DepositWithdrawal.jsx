@@ -1,0 +1,1008 @@
+import React, { useState, useEffect } from "react";
+import { 
+  FaArrowLeft, 
+  FaPlus, 
+  FaHistory, 
+  FaWallet, 
+  FaCheckCircle, 
+  FaTimesCircle, 
+  FaClock,
+  FaChevronLeft,
+  FaCreditCard,
+  FaRupeeSign,
+  FaCalendar,
+  FaIdCard,
+  FaBuilding,
+  FaListOl,
+  FaBarcode,
+  FaSave,
+  FaTrash,
+  FaExchangeAlt,
+  FaMoneyBillWave,
+  FaShieldAlt,
+  FaQrcode
+} from "react-icons/fa";
+import { toast, Toaster } from 'react-hot-toast';
+
+const DepositWithdrawal = () => {
+  const [activeTab, setActiveTab] = useState("deposit");
+  const [showHistory, setShowHistory] = useState(false);
+  const [showAddBankPopup, setShowAddBankPopup] = useState(false);
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [depositAmount, setDepositAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("UPI");
+  const [bankForm, setBankForm] = useState({
+    accountType: "Bank Account",
+    accountHolderName: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+  });
+
+  // Initialize with empty data
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [depositHistory, setDepositHistory] = useState([]);
+
+  // Quick deposit amounts
+  const quickDepositAmounts = [100, 500, 1000, 5000];
+
+  // Payment methods
+  const paymentMethods = [
+    { id: "upi", name: "UPI", icon: FaQrcode },
+    { id: "card", name: "Credit/Debit Card", icon: FaCreditCard },
+    { id: "netbanking", name: "Net Banking", icon: FaBuilding },
+    { id: "wallet", name: "Wallet", icon: FaWallet }
+  ];
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "completed":
+        return <FaCheckCircle className="text-green-500 mr-2" />;
+      case "pending":
+        return <FaClock className="text-yellow-500 mr-2" />;
+      case "rejected":
+        return <FaTimesCircle className="text-red-500 mr-2" />;
+      default:
+        return null;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "completed":
+        return "border-l-4 border-l-green-500 bg-green-50";
+      case "pending":
+        return "border-l-4 border-l-yellow-500 bg-yellow-50";
+      case "rejected":
+        return "border-l-4 border-l-red-500 bg-red-50";
+      default:
+        return "border-l-4 border-l-gray-300 bg-gray-50";
+    }
+  };
+
+  const handleBankFormChange = (e) => {
+    const { name, value } = e.target;
+    setBankForm({
+      ...bankForm,
+      [name]: value
+    });
+  };
+
+  const handleAddBankAccount = () => {
+    // Validate all fields
+    if (!bankForm.accountHolderName.trim()) {
+      toast.error("Please enter account holder name");
+      return;
+    }
+    if (!bankForm.bankName.trim()) {
+      toast.error("Please enter bank name");
+      return;
+    }
+    if (!bankForm.accountNumber.trim() || bankForm.accountNumber.length < 10) {
+      toast.error("Please enter valid account number (minimum 10 digits)");
+      return;
+    }
+    if (!bankForm.ifscCode.trim() || bankForm.ifscCode.length !== 11) {
+      toast.error("Please enter valid 11-digit IFSC code");
+      return;
+    }
+
+    const newBankAccount = {
+      id: Date.now(),
+      bankName: bankForm.bankName,
+      accountNumber: bankForm.accountNumber,
+      maskedAccount: `XXXX-XXXX-${bankForm.accountNumber.slice(-4)}`,
+      ifsc: bankForm.ifscCode,
+      accountHolder: bankForm.accountHolderName,
+      accountType: bankForm.accountType,
+      isDefault: bankAccounts.length === 0,
+      addedDate: new Date().toLocaleDateString()
+    };
+
+    setBankAccounts([newBankAccount, ...bankAccounts]);
+    setSelectedBank(newBankAccount.id);
+    setShowAddBankPopup(false);
+    
+    // Reset form
+    setBankForm({
+      accountType: "Bank Account",
+      accountHolderName: "",
+      bankName: "",
+      accountNumber: "",
+      ifscCode: "",
+    });
+    
+    toast.success("Bank account added successfully!");
+  };
+
+  const handleDeleteBankAccount = (id) => {
+    const updatedAccounts = bankAccounts.filter(account => account.id !== id);
+    setBankAccounts(updatedAccounts);
+    
+    if (selectedBank === id && updatedAccounts.length > 0) {
+      setSelectedBank(updatedAccounts[0].id);
+    } else if (updatedAccounts.length === 0) {
+      setSelectedBank(null);
+    }
+    
+    toast.success("Bank account removed successfully!");
+  };
+
+  const handleSetDefaultBank = (id) => {
+    const updatedAccounts = bankAccounts.map(account => ({
+      ...account,
+      isDefault: account.id === id
+    }));
+    setBankAccounts(updatedAccounts);
+    toast.success("Default bank account updated!");
+  };
+
+  const handleQuickDeposit = (amount) => {
+    setDepositAmount(amount.toString());
+    toast.success(`₹${amount} selected for deposit`);
+  };
+
+  const handleDeposit = () => {
+    const amount = Number(depositAmount);
+    
+    if (!depositAmount || amount <= 0) {
+      toast.error("Please enter valid deposit amount");
+      return;
+    }
+
+    if (amount < 100) {
+      toast.error("Minimum deposit amount is ₹100");
+      return;
+    }
+
+    // Calculate bonus (10% of deposit)
+    const bonus = Math.floor(amount * 0.1);
+
+    const newDeposit = {
+      id: Date.now(),
+      amount: amount,
+      displayAmount: `₹${amount.toLocaleString()}`,
+      bonus: `₹${bonus.toLocaleString()}`,
+      status: "pending",
+      accountType: selectedPaymentMethod,
+      date: new Date().toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      reason: "Regular deposit",
+      transactionId: `TXN${Date.now().toString().slice(-8)}`
+    };
+
+    setDepositHistory([newDeposit, ...depositHistory]);
+    setDepositAmount("");
+    
+    toast.success(
+      <div>
+        <div className="font-bold">Deposit Request Submitted!</div>
+        <div>Amount: ₹{amount.toLocaleString()}</div>
+        <div>Bonus: ₹{bonus.toLocaleString()}</div>
+        <div>Status: Processing</div>
+      </div>,
+      { duration: 4000 }
+    );
+  };
+
+  const handleWithdraw = () => {
+    const amount = Number(withdrawAmount);
+    
+    if (!withdrawAmount || amount <= 0) {
+      toast.error("Please enter valid withdrawal amount");
+      return;
+    }
+
+    if (amount < 500) {
+      toast.error("Minimum withdrawal amount is ₹500");
+      return;
+    }
+
+    if (bankAccounts.length === 0) {
+      toast.error("Please add a bank account first");
+      setShowAddBankPopup(true);
+      return;
+    }
+
+    if (!selectedBank) {
+      toast.error("Please select a bank account for withdrawal");
+      return;
+    }
+
+    const selectedBankAccount = bankAccounts.find(acc => acc.id === selectedBank);
+
+    const newWithdrawal = {
+      id: Date.now(),
+      amount: amount,
+      displayAmount: `₹${amount.toLocaleString()}`,
+      status: "pending",
+      accountNumber: selectedBankAccount.maskedAccount,
+      bankName: selectedBankAccount.bankName,
+      date: new Date().toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      reason: "Regular withdrawal",
+      transactionId: `WDL${Date.now().toString().slice(-8)}`
+    };
+
+    setWithdrawals([newWithdrawal, ...withdrawals]);
+    setWithdrawAmount("");
+    
+    toast.success(
+      <div>
+        <div className="font-bold">Withdrawal Request Submitted!</div>
+        <div>Amount: ₹{amount.toLocaleString()}</div>
+        <div>Bank: {selectedBankAccount.bankName}</div>
+        <div>Processing time: 20 minutes</div>
+      </div>,
+      { duration: 4000 }
+    );
+  };
+
+  const renderContent = () => {
+    if (showHistory) {
+      const historyData = activeTab === "deposit" ? depositHistory : withdrawals;
+      const columns = activeTab === "deposit" 
+        ? ["No.", "Transaction ID", "Amount", "Bonus", "Status", "Payment Method", "Date", "Reason"]
+        : ["No.", "Transaction ID", "Amount", "Status", "Bank Account", "Date", "Reason"];
+
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => setShowHistory(false)}
+              className="flex items-center px-4 py-2 bg-gradient-to-r from-[#52b202] to-[#3d8c00] text-white font-bold rounded-lg hover:from-[#3d8c00] hover:to-[#52b202] transition-all"
+            >
+              <FaChevronLeft className="mr-2" />
+              Back to {activeTab === "deposit" ? "Deposit" : "Withdrawal"}
+            </button>
+            
+            <div className="flex items-center space-x-2">
+              <FaHistory className="text-2xl text-[#52b202]" />
+              <h2 className="text-2xl font-bold text-gray-800">
+                {activeTab === "deposit" ? "Deposit History" : "Withdrawal History"}
+              </h2>
+            </div>
+          </div>
+
+          {historyData.length > 0 ? (
+            <div className="overflow-x-auto rounded-xl border border-gray-200">
+              <table className="w-full min-w-max">
+                <thead className="bg-gradient-to-r from-[#52b202] to-[#3d8c00]">
+                  <tr>
+                    {columns.map((col, index) => (
+                      <th 
+                        key={index} 
+                        className="p-4 text-left text-white font-bold text-sm uppercase tracking-wide"
+                      >
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyData.map((item, index) => (
+                    <tr 
+                      key={item.id} 
+                      className={`hover:bg-gray-50 transition-colors ${getStatusColor(item.status)}`}
+                    >
+                      <td className="p-4 font-medium">{index + 1}</td>
+                      <td className="p-4 font-mono text-sm text-gray-600">{item.transactionId}</td>
+                      <td className="p-4">
+                        <div className="flex items-center">
+                          <FaRupeeSign className="mr-1 text-gray-500" />
+                          <span className="font-bold text-gray-800">{item.displayAmount}</span>
+                        </div>
+                      </td>
+                      {activeTab === "deposit" && (
+                        <td className="p-4">
+                          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                            {item.bonus}
+                          </span>
+                        </td>
+                      )}
+                      <td className="p-4">
+                        <div className="flex items-center">
+                          {getStatusIcon(item.status)}
+                          <span className={`font-medium capitalize ${
+                            item.status === 'completed' ? 'text-green-700' :
+                            item.status === 'pending' ? 'text-yellow-700' :
+                            'text-red-700'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </div>
+                      </td>
+                      {activeTab === "deposit" ? (
+                        <td className="p-4">
+                          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                            {item.accountType}
+                          </span>
+                        </td>
+                      ) : (
+                        <td className="p-4">
+                          <div>
+                            <div className="font-medium">{item.bankName}</div>
+                            <div className="text-sm text-gray-600">{item.accountNumber}</div>
+                          </div>
+                        </td>
+                      )}
+                      <td className="p-4">
+                        <div className="flex items-center">
+                          <FaCalendar className="mr-2 text-gray-400" />
+                          <span className="text-gray-700">{item.date}</span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-gray-600">{item.reason}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-16 border-2 border-dashed border-gray-300 rounded-2xl">
+              <FaHistory className="mx-auto text-6xl text-gray-300 mb-4" />
+              <h3 className="text-2xl font-bold text-gray-500 mb-2">No Transaction History</h3>
+              <p className="text-gray-400">No {activeTab} transactions found</p>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="mt-6 px-6 py-3 bg-gradient-to-r from-[#52b202] to-[#3d8c00] text-white font-bold rounded-lg hover:from-[#3d8c00] hover:to-[#52b202] transition-all"
+              >
+                Make Your First {activeTab === "deposit" ? "Deposit" : "Withdrawal"}
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === "deposit") {
+      return (
+        <div className="space-y-8">
+          {/* Quick Deposit Section */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <FaMoneyBillWave className="mr-3 text-[#52b202]" />
+              Quick Deposit Amounts
+            </h3>
+            <p className="text-gray-600 mb-6">Select amount or enter custom amount</p>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {quickDepositAmounts.map((amount) => (
+                <button
+                  key={amount}
+                  onClick={() => handleQuickDeposit(amount)}
+                  className={`p-5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] ${
+                    depositAmount === amount.toString()
+                      ? "bg-gradient-to-r from-[#52b202] to-[#3d8c00] text-white shadow-lg"
+                      : "bg-white border-2 border-green-200 hover:border-[#52b202] text-gray-800 hover:shadow-md"
+                  }`}
+                >
+                  <div className="flex flex-col items-center">
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 ${
+                      depositAmount === amount.toString()
+                        ? "bg-white/20"
+                        : "bg-green-100"
+                    }`}>
+                      <FaRupeeSign className={`text-2xl ${
+                        depositAmount === amount.toString() ? "text-white" : "text-[#52b202]"
+                      }`} />
+                    </div>
+                    <span className="text-2xl font-bold">+₹{amount}</span>
+                    {amount === 1000 && (
+                      <span className="text-xs mt-2 px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                        Most Popular
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Amount Section */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <FaExchangeAlt className="mr-3 text-[#52b202]" />
+              Custom Deposit Amount
+            </h3>
+            
+            <div className="relative">
+              <div className="flex items-center">
+                <span className="absolute left-4 text-2xl font-bold text-gray-500">₹</span>
+                <input
+                  type="number"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  placeholder="Enter custom amount"
+                  className="w-full pl-12 pr-4 py-4 text-xl border-2 border-gray-300 rounded-xl focus:border-[#52b202] focus:ring-2 focus:ring-green-100 focus:outline-none transition-all"
+                  min="100"
+                  step="100"
+                />
+              </div>
+              
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <span className="text-gray-500">Minimum: ₹100</span>
+                <span className="text-gray-500">Increments of ₹100</span>
+              </div>
+            </div>
+            
+            {depositAmount && Number(depositAmount) > 0 && (
+              <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-600 text-sm">Deposit Amount</p>
+                    <p className="text-2xl font-bold text-gray-800">
+                      ₹{Number(depositAmount).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-sm">Bonus (10%)</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      +₹{Math.floor(Number(depositAmount) * 0.1).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Payment Methods */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <FaCreditCard className="mr-3 text-[#52b202]" />
+              Select Payment Method
+            </h3>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {paymentMethods.map((method) => {
+                const Icon = method.icon;
+                return (
+                  <button
+                    key={method.id}
+                    onClick={() => setSelectedPaymentMethod(method.name)}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      selectedPaymentMethod === method.name
+                        ? "border-[#52b202] bg-green-50 shadow-md"
+                        : "border-gray-200 hover:border-green-300 hover:shadow-sm"
+                    }`}
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
+                        selectedPaymentMethod === method.name
+                          ? "bg-[#52b202]"
+                          : "bg-gray-100"
+                      }`}>
+                        <Icon className={`text-xl ${
+                          selectedPaymentMethod === method.name ? "text-white" : "text-gray-600"
+                        }`} />
+                      </div>
+                      <span className={`font-medium ${
+                        selectedPaymentMethod === method.name ? "text-[#52b202]" : "text-gray-700"
+                      }`}>
+                        {method.name}
+                      </span>
+                      {selectedPaymentMethod === method.name && (
+                        <div className="mt-2 w-4 h-4 rounded-full bg-[#52b202] flex items-center justify-center">
+                          <div className="w-2 h-2 rounded-full bg-white"></div>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={handleDeposit}
+              disabled={!depositAmount || Number(depositAmount) < 100}
+              className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] ${
+                depositAmount && Number(depositAmount) >= 100
+                  ? "bg-gradient-to-r from-[#52b202] to-[#3d8c00] text-white shadow-lg hover:shadow-xl"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {depositAmount && Number(depositAmount) >= 100 ? (
+                <>
+                  <FaWallet className="inline mr-2" />
+                  DEPOSIT ₹{Number(depositAmount).toLocaleString()}
+                </>
+              ) : (
+                "ENTER AMOUNT TO DEPOSIT"
+              )}
+            </button>
+            
+            <button
+              onClick={() => setShowHistory(true)}
+              className="px-8 py-4 bg-white border-2 border-[#52b202] text-[#52b202] font-bold rounded-xl hover:bg-green-50 transition-all flex items-center justify-center"
+            >
+              <FaHistory className="mr-3" />
+              View History
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Withdrawal Content
+    return (
+      <div className="space-y-8">
+        {/* Bank Accounts Section */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                <FaBuilding className="mr-3 text-red-500" />
+                Your Bank Accounts
+              </h3>
+              <p className="text-gray-600 mt-1">Select bank account for withdrawal</p>
+            </div>
+            
+            <button
+              onClick={() => setShowAddBankPopup(true)}
+              className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all flex items-center"
+            >
+              <FaPlus className="mr-2" />
+              Add Bank Account
+            </button>
+          </div>
+
+          {bankAccounts.length > 0 ? (
+            <div className="space-y-4">
+              {bankAccounts.map((account) => (
+                <div
+                  key={account.id}
+                  onClick={() => setSelectedBank(account.id)}
+                  className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
+                    selectedBank === account.id
+                      ? "border-red-500 bg-red-50 shadow-md"
+                      : "border-gray-200 hover:border-red-300 hover:shadow-sm"
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                            <FaBuilding className="text-2xl text-red-500" />
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-bold text-gray-800">{account.bankName}</h4>
+                            <div className="flex items-center gap-4 mt-1">
+                              <span className="text-sm text-gray-600">
+                                A/C: {account.maskedAccount}
+                              </span>
+                              {account.isDefault && (
+                                <span className="px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full">
+                                  DEFAULT
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div className="flex items-center">
+                          <FaIdCard className="text-gray-400 mr-3" />
+                          <div>
+                            <p className="text-xs text-gray-500">Account Holder</p>
+                            <p className="font-medium">{account.accountHolder}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <FaBarcode className="text-gray-400 mr-3" />
+                          <div>
+                            <p className="text-xs text-gray-500">IFSC Code</p>
+                            <p className="font-mono font-medium">{account.ifsc}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <FaCalendar className="text-gray-400 mr-3" />
+                          <div>
+                            <p className="text-xs text-gray-500">Added On</p>
+                            <p className="font-medium">{account.addedDate}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {!account.isDefault && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSetDefaultBank(account.id);
+                          }}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Set Default
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteBankAccount(account.id);
+                        }}
+                        className="p-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
+              <FaBuilding className="mx-auto text-6xl text-gray-300 mb-4" />
+              <h4 className="text-2xl font-bold text-gray-500 mb-2">No Bank Account Found</h4>
+              <p className="text-gray-400 mb-6">Add your bank account to start withdrawing</p>
+              <button
+                onClick={() => setShowAddBankPopup(true)}
+                className="px-8 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md"
+              >
+                <FaPlus className="inline mr-2" />
+                Add Your First Bank Account
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Withdrawal Amount Section */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <FaMoneyBillWave className="mr-3 text-red-500" />
+            Withdrawal Amount
+          </h3>
+          
+          <div className="relative mb-6">
+            <div className="flex items-center">
+              <span className="absolute left-4 text-2xl font-bold text-gray-500">₹</span>
+              <input
+                type="number"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                placeholder="Please enter amount"
+                className="w-full pl-12 pr-4 py-4 text-xl border-2 border-gray-300 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-100 focus:outline-none transition-all"
+                min="500"
+                step="100"
+              />
+            </div>
+            
+            {!withdrawAmount && (
+              <p className="text-red-500 text-sm mt-2 flex items-center">
+                <FaTimesCircle className="mr-1" />
+                Please enter amount
+              </p>
+            )}
+            
+            <div className="mt-4 flex items-center justify-between text-sm">
+              <span className="text-gray-500">Minimum: ₹500</span>
+              <span className="text-gray-500">Increments of ₹100</span>
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-xl border border-red-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-600">Available Balance:</span>
+              <span className="text-2xl font-bold text-green-600">₹25,000</span>
+            </div>
+            {withdrawAmount && Number(withdrawAmount) > 0 && (
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-gray-600 text-sm">Withdrawal Amount</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    ₹{Number(withdrawAmount).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Remaining Balance</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    ₹{(25000 - Number(withdrawAmount)).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={handleWithdraw}
+            disabled={!withdrawAmount || Number(withdrawAmount) < 500 || bankAccounts.length === 0 || !selectedBank}
+            className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] ${
+              withdrawAmount && Number(withdrawAmount) >= 500 && bankAccounts.length > 0 && selectedBank
+                ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            {withdrawAmount && Number(withdrawAmount) >= 500 && bankAccounts.length > 0 && selectedBank ? (
+              <>
+                <FaWallet className="inline mr-2" />
+                WITHDRAW ₹{Number(withdrawAmount).toLocaleString()}
+              </>
+            ) : bankAccounts.length === 0 ? (
+              "ADD BANK ACCOUNT FIRST"
+            ) : !selectedBank ? (
+              "SELECT BANK ACCOUNT"
+            ) : (
+              "ENTER VALID AMOUNT (Min ₹500)"
+            )}
+          </button>
+          
+          <button
+            onClick={() => setShowHistory(true)}
+            className="px-8 py-4 bg-white border-2 border-red-500 text-red-500 font-bold rounded-xl hover:bg-red-50 transition-all flex items-center justify-center"
+          >
+            <FaHistory className="mr-3" />
+            View History
+          </button>
+        </div>
+
+        {/* Important Notes */}
+        <div className="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl border border-red-200">
+          <h4 className="text-lg font-bold text-red-700 mb-4 flex items-center">
+            <FaShieldAlt className="mr-3" />
+            Important Notes & Guidelines
+          </h4>
+          <ul className="space-y-3">
+            {[
+              "This form is for withdrawing the amount from the main wallet only.",
+              "The bonus wallet amount cannot be withdrawn by this form.",
+              "Do not put Withdraw request without betting with deposit amount. Such activity may be identified as Suspicious.",
+              "If multiple users are using same withdraw account then all the linked users will be blocked.",
+              "Maximum Withdraw processing time is 20 minutes then only complain on LIVE CHAT.",
+              "Withdrawal requests are processed within 1-2 business days.",
+              "Ensure your bank account details are correct before submitting withdrawal request."
+            ].map((note, index) => (
+              <li key={index} className="flex items-start">
+                <span className="text-red-500 mr-3 mt-1">•</span>
+                <span className="text-red-700">{note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            style: {
+              background: '#10B981',
+            },
+          },
+          error: {
+            style: {
+              background: '#EF4444',
+            },
+          },
+        }}
+      />
+      
+      {/* Add Bank Account Popup */}
+      {showAddBankPopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
+    <div className="w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl border border-white/30 animate-scaleIn">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200/50">
+        <h3 className="text-xl font-bold text-gray-800 flex items-center">
+          <FaPlus className="mr-3 text-red-500" />
+          Add Bank Account
+        </h3>
+        <button
+          onClick={() => setShowAddBankPopup(false)}
+          className="text-3xl text-gray-400 hover:text-red-500 transition"
+        >
+          &times;
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-6 space-y-5">
+
+        {/* Account Type */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaIdCard className="mr-2" /> Account Type
+          </label>
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-gray-100/70 border border-gray-300">
+            <FaBuilding className="text-red-500 text-lg" />
+            <span className="font-medium text-gray-800">Bank Account</span>
+          </div>
+        </div>
+
+        {/* Holder Name */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaIdCard className="mr-2" /> Account Holder Name
+          </label>
+          <input
+            type="text"
+            name="accountHolderName"
+            value={bankForm.accountHolderName}
+            onChange={handleBankFormChange}
+            placeholder="Enter holder name"
+            className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
+          />
+        </div>
+
+        {/* Bank Name */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaBuilding className="mr-2" /> Bank Name
+          </label>
+          <input
+            type="text"
+            name="bankName"
+            value={bankForm.bankName}
+            onChange={handleBankFormChange}
+            placeholder="Enter bank name"
+            className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
+          />
+        </div>
+
+        {/* Account Number */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaListOl className="mr-2" /> Account Number
+          </label>
+          <input
+            type="text"
+            name="accountNumber"
+            value={bankForm.accountNumber}
+            onChange={handleBankFormChange}
+            placeholder="Enter account number"
+            className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
+          />
+        </div>
+
+        {/* IFSC */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+            <FaBarcode className="mr-2" /> IFSC Code
+          </label>
+          <input
+            type="text"
+            name="ifscCode"
+            value={bankForm.ifscCode}
+            onChange={handleBankFormChange}
+            placeholder="Enter IFSC code"
+            className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
+          />
+        </div>
+
+        {/* Save Button */}
+        <button
+          onClick={handleAddBankAccount}
+          className="w-full mt-6 py-4 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition flex items-center justify-center"
+        >
+          <FaSave className="mr-3" />
+          Save Bank Account
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
+
+      {/* Header */}
+      <div className="max-w-6xl mx-auto mb-8">
+       
+
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            <FaWallet className="inline mr-3 text-[#52b202]" />
+            Wallet Manager
+          </h1>
+          <p className="text-gray-600">Deposit funds or withdraw your winnings</p>
+        </div>
+
+        {/* Main Container */}
+        <div className="bg-white rounded overflow-hidden ">
+          {/* Tab Navigation */}
+          <div className="flex">
+            <button
+              onClick={() => {
+                setActiveTab("deposit");
+                setShowHistory(false);
+                setDepositAmount("");
+              }}
+              className={`flex-1 py-5 text-center font-bold text-lg transition-all relative ${
+                activeTab === "deposit"
+                  ? "bg-gradient-to-r from-[#52b202] to-[#3d8c00] text-white"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <div className="flex items-center justify-center">
+                <FaPlus className="mr-3" />
+                DEPOSIT
+              </div>
+              {activeTab === "deposit" && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white"></div>
+              )}
+            </button>
+            
+            <button
+              onClick={() => {
+                setActiveTab("withdrawal");
+                setShowHistory(false);
+                setWithdrawAmount("");
+              }}
+              className={`flex-1 py-5 text-center font-bold text-lg transition-all relative ${
+                activeTab === "withdrawal"
+                  ? "bg-gradient-to-r from-red-500 to-red-600 text-white"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <div className="flex items-center justify-center">
+                <FaWallet className="mr-3" />
+                WITHDRAWAL
+              </div>
+              {activeTab === "withdrawal" && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white"></div>
+              )}
+            </button>
+          </div>
+
+          {/* Content Area */}
+          <div className="p-6 md:p-8">
+            {renderContent()}
+          </div>
+        </div>
+
+        
+      </div>
+    </div>
+  );
+};
+
+export default DepositWithdrawal;

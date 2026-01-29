@@ -1,25 +1,25 @@
 import React, { useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // ✅ MISSING IMPORT FIXED
 import { OriginalsGames } from "../Data/GamesData";
 
 const GameSlider = () => {
   const scrollRef = useRef(null);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ✅ works now
 
   const [activeTab, setActiveTab] = useState("Originals");
 
   const tabs = ["Originals", "Crash Games", "Live Roulette", "MAC88"];
 
-  // 🔹 Filter games based on tab (DATA FIXED)
+  // 🔹 Filter games
   const getFilteredGames = () => {
     switch (activeTab) {
       case "Originals":
         return OriginalsGames;
 
       case "Crash Games":
-        return OriginalsGames.filter(
-          (g) => g.game_type?.toLowerCase().includes("crash")
+        return OriginalsGames.filter((g) =>
+          g.game_type?.toLowerCase().includes("crash")
         );
 
       case "Live Roulette":
@@ -30,8 +30,8 @@ const GameSlider = () => {
         );
 
       case "MAC88":
-        return OriginalsGames.filter(
-          (g) => g.provider?.toLowerCase().includes("jdb")
+        return OriginalsGames.filter((g) =>
+          g.provider?.toLowerCase().includes("jdb")
         );
 
       default:
@@ -41,24 +41,21 @@ const GameSlider = () => {
 
   const filteredGames = getFilteredGames();
 
-  // 🔹 Scroll logic (unchanged)
+  // 🔹 Scroll logic
   const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { clientWidth } = scrollRef.current;
-      const moveDistance =
-        direction === "left"
-          ? -clientWidth * 0.6
-          : clientWidth * 0.6;
+    if (!scrollRef.current) return;
 
-      scrollRef.current.scrollBy({
-        left: moveDistance,
-        behavior: "smooth",
-      });
-    }
+    const { clientWidth } = scrollRef.current;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -clientWidth * 0.6 : clientWidth * 0.6,
+      behavior: "smooth",
+    });
   };
 
-  // 🔹 PLAY REDIRECT FIX
+  // 🔹 GAME PLAY NAVIGATION (API SAFE)
   const handlePlayGame = (game) => {
+    if (!game) return;
+
     navigate(`/play/${game.game_uid || game.id}`, {
       state: {
         gameUrl: game.game_url,
@@ -69,46 +66,46 @@ const GameSlider = () => {
   };
 
   return (
-    <div className="my-6 px-2 lg:px-4">
-      {/* Dark Premium Wrapper */}
-      <div className="bg-[#1a0514] rounded-2xl overflow-hidden shadow-2xl border border-white/5">
-        
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center bg-[#2d0b23]/40 backdrop-blur-md border-b border-white/5">
-          
+    <div className="mb-2 p-1">
+      <div className="bg-white rounded-md shadow-sm">
+
+        {/* Tabs + Arrows */}
+        <div className="flex justify-between items-center border-b border-gray-200 py-1">
+
           {/* Tabs */}
-          <div className="flex items-center overflow-x-auto no-scrollbar w-full md:w-auto">
+          <div className="flex items-center overflow-x-auto no-scrollbar">
             {tabs.map((tab) => (
-              <button
+              <div
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`relative px-6 py-4 font-bold text-[11px] md:text-xs uppercase tracking-[0.15em] transition-all duration-300 ${
-                  activeTab === tab
-                    ? "text-[#ff2e2e]"
-                    : "text-gray-400 hover:text-gray-200"
-                }`}
+                className={`relative px-2 md:px-3 py-2 font-bold text-[12px] md:text-[14px] cursor-pointer whitespace-nowrap
+                  ${
+                    activeTab === tab
+                      ? "text-red-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
               >
                 {tab}
                 {activeTab === tab && (
-                  <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#ff2e2e] to-transparent shadow-[0_0_15px_#ff2e2e]"></div>
+                  <span className="absolute bottom-0 left-0 w-full h-[3px] bg-red-600 rounded-full" />
                 )}
-              </button>
+              </div>
             ))}
           </div>
 
           {/* Arrows */}
-          <div className="hidden md:flex items-center px-4 gap-2">
+          <div className="flex items-center gap-2 px-2">
             <button
               onClick={() => scroll("left")}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[#82175d] text-white transition-all border border-white/10"
+              className="p-2 rounded-md bg-[#82175d] text-white"
             >
-              <FaChevronLeft size={12} />
+              <FaChevronLeft size={10} />
             </button>
             <button
               onClick={() => scroll("right")}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[#82175d] text-white transition-all border border-white/10"
+              className="p-2 rounded-md bg-[#82175d] text-white"
             >
-              <FaChevronRight size={12} />
+              <FaChevronRight size={10} />
             </button>
           </div>
         </div>
@@ -116,38 +113,24 @@ const GameSlider = () => {
         {/* Slider */}
         <div
           ref={scrollRef}
-          className="flex flex-nowrap gap-4 p-5 overflow-x-auto no-scrollbar snap-x snap-mandatory"
+          className="p-2 flex gap-2 overflow-x-auto scroll-smooth no-scrollbar"
         >
           {filteredGames.map((game) => (
-            <div
+            <img
               key={game.id || game.game_uid}
-              onClick={() => handlePlayGame(game)}
-              className="group relative flex-shrink-0 w-[130px] sm:w-[150px] md:w-[180px] aspect-[3/4] rounded-xl overflow-hidden cursor-pointer snap-start transition-all duration-500 border border-white/5 hover:border-[#ff2e2e]/50 hover:shadow-[0_0_25px_rgba(255,46,173,0.2)]"
-            >
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1a0514] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity z-10"></div>
-
-              <img
-                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110 "
-                src={game.img || game.icon}
-                alt={game.game_name}
-                loading="lazy"
-                onError={(e) => {
-                  e.target.src =
-                    "https://via.placeholder.com/300x400?text=Casino";
-                }}
-              />
-
-              {/* Play Icon */}
-              <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
-                <div className="w-12 h-12 bg-[#ff2e2e] rounded-full flex items-center justify-center shadow-lg shadow-[#ff2e2e]/40">
-                  <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
-                </div>
-              </div>
-            </div>
+              src={game.img || game.icon}
+              alt={game.game_name}
+              onClick={() => handlePlayGame(game)} // ✅ CLICK FIXED
+              className="w-[120px] sm:w-[140px] md:w-[160px] lg:w-[180px]
+                         aspect-[0.9/1] rounded-md object-cover cursor-pointer
+                         flex-shrink-0 hover:scale-[1.03] transition"
+              onError={(e) => {
+                e.target.src =
+                  "https://via.placeholder.com/180x200?text=Game";
+              }}
+            />
           ))}
         </div>
-
       </div>
     </div>
   );

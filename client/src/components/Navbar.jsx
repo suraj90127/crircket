@@ -118,7 +118,7 @@ const Navbar = ({ onNavItemClick }) => {
     { name: "Cricket", path: "/cricket", icon: <MdSportsCricket /> },
     { name: "Soccer", path: "/soccer", icon: <MdSportsSoccer />, count: 7 },
     { name: "Tennis", path: "/tennis", icon: <MdSportsTennis />, count: 1 },
-    { name: "Sports Book", path: "/sports-book", icon: <BsShieldShaded /> },
+    // { name: "Sports Book", path: "/sports-book", icon: <BsShieldShaded /> },
     { name: "Original", path: "/games/OriginalsGames", icon: <MdOutlineLocalFireDepartment /> },
     { name: "Horse Racing", path: "/horse-racing", icon: <FaHorseHead /> },
     { name: "Casino", path: "/games/liveCasino", icon: <MdCasino /> },
