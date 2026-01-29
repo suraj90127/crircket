@@ -7,7 +7,7 @@ import passwordHistory from "../models/passwordHistory.js";
 import LoginHistory from "../models/loginHistory.js";
 import axios from "axios";
 import betModel from "../models/betModel.js";
-import UserWithdrawal from "../models/userWithdrawalModel.js";
+import UserWithdrawal from "../models/userwithdrawalModel.js";
 
 // Register User
 export const registerUser = async (req, res) => {
@@ -333,7 +333,7 @@ export const addBank = async (req, res) => {
 };
 
 
-export const requestWithdrawal = async (req, res) => {
+export const userWithdrawal = async (req, res) => {
   try {
     const { id } = req;
     const { amount, paymentMethod, accountDetails } = req.body;
@@ -355,7 +355,9 @@ export const requestWithdrawal = async (req, res) => {
       userId: id,
       amount,
       paymentMethod,
-      accountDetails,
+      accountnumber: accountDetails.accountNumber,
+      ifsc: accountDetails.ifscCode,
+      phone: accountDetails.phone,
     });
 
     res.status(201).json({
