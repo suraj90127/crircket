@@ -1,12 +1,13 @@
 // import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
-
+import Bank from "../models/addBankModel.js";
 import jwt from "jsonwebtoken";
 import SubAdmin from "../models/subAdminModel.js";
 import passwordHistory from "../models/passwordHistory.js";
 import LoginHistory from "../models/loginHistory.js";
 import axios from "axios";
 import betModel from "../models/betModel.js";
+import UserWithdrawal from "../models/userWithdrawalModel.js";
 
 // Register User
 export const registerUser = async (req, res) => {
@@ -288,4 +289,131 @@ export const user_logout = async (req, res) => {
   });
 
   res.status(200).json({ message: "Logout success" });
+};
+
+export const addBank = async (req, res) => {
+  const { id } = req;
+  try {
+    const { bankName, accountNumber, ifscCode, accountHolderName, accountType } = req.body;
+
+    if (!bankName || !accountNumber || !ifscCode || !accountHolderName || !accountType) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await SubAdmin.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Ensure account number is unique (model also enforces this)
+    const existing = await Bank.findOne({ accountNumber });
+    if (existing) {
+      return res.status(400).json({ message: "Account number already exists" });
+    }
+
+    const bank = await Bank.create({
+      userId: id,
+      bankName,
+      accountNumber,
+      ifscCode,
+      accountHolderName,
+      accountType,
+      isActive: true,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Bank details added successfully",
+      data: bank,
+    });
+  } catch (error) {
+    console.error("Add Bank Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+export const requestWithdrawal = async (req, res) => {
+  try {
+    const { id } = req;
+    const { amount, paymentMethod, accountDetails } = req.body;
+
+    if (!amount || !paymentMethod || !accountDetails) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (amount <= 0) {
+      return res.status(400).json({ message: "Amount must be greater than 0" });
+    }
+
+    const user = await SubAdmin.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const withdrawal = await UserWithdrawal.create({
+      userId: id,
+      amount,
+      paymentMethod,
+      accountDetails,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Withdrawal request submitted successfully",
+      data: withdrawal,
+    });
+  } catch (error) {
+    console.error("Withdrawal Request Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const getWithdrawalHistory = async (req, res) => {
+  try {
+    const { id } = req;
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    const withdrawals = await UserWithdrawal.find({ userId: id })
+      .sort({ createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum);
+
+    const total = await UserWithdrawal.countDocuments({ userId: id });
+
+    res.status(200).json({
+      success: true,
+      message: "Withdrawal history fetched successfully",
+      data: withdrawals,
+      total,
+      totalPages: Math.ceil(total / limitNum),
+      currentPage: pageNum,
+    });
+  } catch (error) {
+    console.error("Get Withdrawal History Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const getWithdrawalById = async (req, res) => {
+  try {
+    const { withdrawalId } = req.params;
+
+    const withdrawal = await UserWithdrawal.findById(withdrawalId);
+    if (!withdrawal) {
+      return res.status(404).json({ message: "Withdrawal not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Withdrawal details retrieved successfully",
+      data: withdrawal,
+    });
+  } catch (error) {
+    console.error("Get Withdrawal Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };

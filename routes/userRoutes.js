@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  addBank,
   changePasswordByUserSelf,
   getLoginHistory,
   getPasswordHistoryByUserId,
@@ -22,5 +23,6 @@ router.post(
 );
 router.get("/password/history", authMiddleware, getPasswordHistoryByUserId);
 router.get("/get/user-login-history/:userId", authMiddleware, getLoginHistory);
+router.post("/user/addbank",authMiddleware, addBank);
 
 export default router;
