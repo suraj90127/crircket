@@ -41,7 +41,6 @@ const DepositWithdrawal = () => {
   const dispatch = useDispatch();
   
   const {
-    balance,
     bankAccounts,
     withdrawals,
     loading,
@@ -79,29 +78,37 @@ const DepositWithdrawal = () => {
 
   const [depositHistory, setDepositHistory] = useState([]);
 
-  // Load initial data और periodic balance refresh
+  // Load initial data
   useEffect(() => {
+<<<<<<< Updated upstream
     // Initial load
    
     dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
 
+=======
+    dispatch(getUserBankDetails());
+    dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
+>>>>>>> Stashed changes
   }, [dispatch]);
 
   useEffect(() => {
     console.log("Bank Accounts from Redux:", bankAccounts);
   }, [bankAccounts]);
 
-  // Handle success/error messages और balance refresh
+  // Handle success/error messages
   useEffect(() => {
     if (success) {
       toast.success(success);
+<<<<<<< Updated upstream
       
       // अगर success message withdrawal/deposit related है, तो balance refresh करें
       if (success.toLowerCase().includes("withdrawal") || 
           success.toLowerCase().includes("deposit") ||
           success.toLowerCase().includes("bank")) 
       
+=======
+>>>>>>> Stashed changes
       dispatch(clearWalletState());
     }
     if (error) {
@@ -115,7 +122,7 @@ const DepositWithdrawal = () => {
     console.log("Bank accounts changed:", bankAccounts);
     
     if (bankAccounts && bankAccounts.length > 0) {
-      // अगर selectedBank valid नहीं है या null है
+      // If selectedBank is not valid or null
       if (!selectedBank) {
         const defaultAccount = bankAccounts.find(acc => acc.isDefault);
         const accountToSelect = defaultAccount || bankAccounts[0];
@@ -225,9 +232,12 @@ const DepositWithdrawal = () => {
     if (bankToDelete) {
       // Call your delete API here
       toast.success("Bank account deleted successfully");
-      // Refresh bank list और balance
+      // Refresh bank list
       dispatch(getUserBankDetails());
+<<<<<<< Updated upstream
      
+=======
+>>>>>>> Stashed changes
     }
     setShowDeleteConfirm(false);
     setBankToDelete(null);
@@ -282,27 +292,34 @@ const DepositWithdrawal = () => {
   };
 
   const confirmDeposit = () => {
+<<<<<<< Updated upstream
    
+=======
+    if (pendingDeposit) {
+      setDepositHistory([pendingDeposit, ...depositHistory]);
+      setDepositAmount("");
+      
+      toast.success(
+        <div>
+          <div className="font-bold">Deposit Request Submitted!</div>
+          <div>Amount: ₹{pendingDeposit.amount.toLocaleString()}</div>
+          <div>Bonus: ₹{Math.floor(pendingDeposit.amount * 0.1).toLocaleString()}</div>
+          <div>Status: Processing</div>
+        </div>,
+        { duration: 4000 }
+      );
+      
+      setPendingDeposit(null);
+    }
+>>>>>>> Stashed changes
     setShowDepositConfirm(false);
-    setPendingDeposit(null);
   };
 
   const handleWithdraw = () => {
     const amount = Number(withdrawAmount);
-    const currentBalance = userInfo?.avbalance || 0;
     
     if (!withdrawAmount || amount <= 0) {
-      toast.error("Please enter valid withdrawal amount");
-      return;
-    }
-
-    if (amount < 500) {
-      toast.error("Minimum withdrawal amount is ₹500");
-      return;
-    }
-
-    if (amount > currentBalance) {
-      toast.error(`Insufficient balance. Available: ₹${currentBalance.toLocaleString()}`);
+      toast.error("Please enter withdrawal amount");
       return;
     }
 
@@ -329,7 +346,11 @@ const DepositWithdrawal = () => {
 
   const confirmWithdrawal = () => {
     if (pendingWithdraw) {
+<<<<<<< Updated upstream
       dispatch(requestWithdrawal(pendingWithdraw))
+=======
+      dispatch(requestWithdrawal(pendingWithdraw));
+>>>>>>> Stashed changes
       setWithdrawAmount("");
     }
     setShowWithdrawConfirm(false);
@@ -511,7 +532,10 @@ const DepositWithdrawal = () => {
                   ₹{(userInfo?.avbalance || 0).toLocaleString()}
                 </p>
               </div>
+<<<<<<< Updated upstream
              
+=======
+>>>>>>> Stashed changes
             </div>
           </div>
 
@@ -704,7 +728,10 @@ const DepositWithdrawal = () => {
                 ₹{(userInfo?.avbalance || 0).toLocaleString()}
               </p>
             </div>
+<<<<<<< Updated upstream
            
+=======
+>>>>>>> Stashed changes
           </div>
         </div>
 
@@ -866,46 +893,9 @@ const DepositWithdrawal = () => {
                 onChange={(e) => setWithdrawAmount(e.target.value)}
                 placeholder="Please enter amount"
                 className="w-full pl-12 pr-4 py-4 text-xl border-2 border-gray-300 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-100 focus:outline-none transition-all"
-                min="500"
-                step="100"
                 disabled={loading}
               />
             </div>
-            
-            {!withdrawAmount && (
-              <p className="text-red-500 text-sm mt-2 flex items-center">
-                <FaTimesCircle className="mr-1" />
-                Please enter amount
-              </p>
-            )}
-            
-            <div className="mt-4 flex items-center justify-between text-sm">
-              <span className="text-gray-500">Minimum: ₹500</span>
-              <span className="text-gray-500">Increments of ₹100</span>
-            </div>
-          </div>
-          
-          <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-xl border border-red-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600">Available Balance:</span>
-              <span className="text-2xl font-bold text-green-600">₹{(userInfo?.avbalance || 0).toLocaleString()}</span>
-            </div>
-            {withdrawAmount && Number(withdrawAmount) > 0 && (
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600 text-sm">Withdrawal Amount</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    ₹{Number(withdrawAmount).toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm">Remaining Balance</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    ₹{((userInfo?.avbalance || 0) - Number(withdrawAmount)).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -915,30 +905,24 @@ const DepositWithdrawal = () => {
             onClick={handleWithdraw}
             disabled={
               !withdrawAmount || 
-              Number(withdrawAmount) < 500 || 
               !bankAccounts || 
               bankAccounts.length === 0 || 
               !selectedBank || 
-              loading || 
-              Number(withdrawAmount) > (userInfo?.avbalance || 0)
+              loading
             }
             className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] ${
               withdrawAmount && 
-              Number(withdrawAmount) >= 500 && 
               bankAccounts && 
               bankAccounts.length > 0 && 
               selectedBank && 
-              !loading && 
-              Number(withdrawAmount) <= (userInfo?.avbalance || 0)
+              !loading
                 ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
           >
             {loading ? (
               'Processing...'
-            ) : withdrawAmount && Number(withdrawAmount) > (userInfo?.avbalance || 0) ? (
-              'INSUFFICIENT BALANCE'
-            ) : withdrawAmount && Number(withdrawAmount) >= 500 && bankAccounts && bankAccounts.length > 0 && selectedBank ? (
+            ) : withdrawAmount && bankAccounts && bankAccounts.length > 0 && selectedBank ? (
               <>
                 <FaWallet className="inline mr-2" />
                 WITHDRAW ₹{Number(withdrawAmount).toLocaleString()}
@@ -948,7 +932,7 @@ const DepositWithdrawal = () => {
             ) : !selectedBank ? (
               "SELECT BANK ACCOUNT"
             ) : (
-              "ENTER VALID AMOUNT (Min ₹500)"
+              "ENTER WITHDRAWAL AMOUNT"
             )}
           </button>
           
