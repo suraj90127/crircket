@@ -20,29 +20,18 @@ export const checkBalance = createAsyncThunk(
 
 /* =========================
    ADD BANK ACCOUNT
-   POST /user/addbank
 ========================= */
 export const addBankAccount = createAsyncThunk(
   "wallet/addBank",
   async (bankData, { rejectWithValue }) => {
     try {
-      // 🔍 FRONTEND CONFIRMATION
       console.log("Sending bankData 👉", bankData);
-
-      // ✅ ENUM FIX (VERY IMPORTANT)
-    //   const payload = {
-    //     ...bankData,
-    //     accountType: bankData.accountType?.toLowerCase(), // "bank"
-    //   };
-
       const res = await api.post("/user/addbank", bankData, {
         withCredentials: true,
       });
-
       return res.data;
     } catch (err) {
       console.error("Add bank error 👉", err.response?.data || err.message);
-
       return rejectWithValue(
         err.response?.data?.message || "Something went wrong"
       );
@@ -52,15 +41,14 @@ export const addBankAccount = createAsyncThunk(
 
 /* =========================
    WITHDRAW REQUEST
-   POST /wallet/withdraw
 ========================= */
 export const requestWithdrawal = createAsyncThunk(
   "wallet/requestWithdrawal",
-  async ({ amount, paymentMethod, accountDetails }, { rejectWithValue }) => {
+  async ({ amount, bankAccountId }, { rejectWithValue }) => {
     try {
       const res = await api.post(
         "/wallet/withdraw",
-        { amount, paymentMethod, accountDetails },
+        { amount, bankAccountId },
         { withCredentials: true }
       );
       return res.data;
@@ -72,7 +60,6 @@ export const requestWithdrawal = createAsyncThunk(
 
 /* =========================
    WITHDRAWAL HISTORY
-   GET /wallet/withdrawals
 ========================= */
 export const getWithdrawalHistory = createAsyncThunk(
   "wallet/withdrawHistory",
@@ -90,6 +77,30 @@ export const getWithdrawalHistory = createAsyncThunk(
 );
 
 /* =========================
+   GET USER BANK DETAILS
+========================= */
+export const getUserBankDetails = createAsyncThunk(
+  "wallet/getUserBankDetails",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/user/bank-details", {
+        withCredentials: true,
+      });
+
+      // 🔍 Log the full response
+      console.log("Bank Details Response 👉", res.data);
+
+      return res.data;
+    } catch (err) {
+      console.error("Error fetching bank details 👉", err.response?.data || err.message);
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch bank details"
+      );
+    }
+  }
+);
+
+/* =========================
    SLICE
 ========================= */
 const walletSlice = createSlice({
@@ -99,7 +110,12 @@ const walletSlice = createSlice({
     bankAccounts: [],
     withdrawals: [],
 
-    loading: false,
+    loadingBalance: false,
+    loadingBank: false,
+    loadingWithdraw: false,
+    loadingHistory: false,
+    loadingBankDetails: false,
+
     error: null,
     success: null,
 
@@ -119,54 +135,75 @@ const walletSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
       /* BALANCE */
       .addCase(checkBalance.pending, (state) => {
-        state.loading = true;
+        state.loadingBalance = true;
       })
       .addCase(checkBalance.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingBalance = false;
         state.balance = action.payload.balance;
       })
       .addCase(checkBalance.rejected, (state, action) => {
-        state.loading = false;
+        state.loadingBalance = false;
         state.error = action.payload;
       })
 
       /* ADD BANK */
       .addCase(addBankAccount.pending, (state) => {
-        state.loading = true;
+        state.loadingBank = true;
       })
       .addCase(addBankAccount.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingBank = false;
         state.bankAccounts.unshift(action.payload.data);
         state.success = action.payload.message;
       })
       .addCase(addBankAccount.rejected, (state, action) => {
-        state.loading = false;
+        state.loadingBank = false;
         state.error = action.payload;
       })
 
       /* WITHDRAW */
       .addCase(requestWithdrawal.pending, (state) => {
-        state.loading = true;
+        state.loadingWithdraw = true;
       })
       .addCase(requestWithdrawal.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingWithdraw = false;
         state.withdrawals.unshift(action.payload.data);
         state.success = action.payload.message;
       })
       .addCase(requestWithdrawal.rejected, (state, action) => {
-        state.loading = false;
+        state.loadingWithdraw = false;
         state.error = action.payload;
       })
 
       /* HISTORY */
+      .addCase(getWithdrawalHistory.pending, (state) => {
+        state.loadingHistory = true;
+      })
       .addCase(getWithdrawalHistory.fulfilled, (state, action) => {
+        state.loadingHistory = false;
         state.withdrawals = action.payload.data;
         state.pagination.total = action.payload.total;
         state.pagination.totalPages = action.payload.totalPages;
         state.pagination.currentPage = action.payload.currentPage;
+      })
+      .addCase(getWithdrawalHistory.rejected, (state, action) => {
+        state.loadingHistory = false;
+        state.error = action.payload;
+      })
+
+      /* BANK DETAILS */
+      .addCase(getUserBankDetails.pending, (state) => {
+        state.loadingBankDetails = true;
+      })
+      .addCase(getUserBankDetails.fulfilled, (state, action) => {
+  console.log("Redux action.payload 👉", action.payload); // 🔍 log payload
+  state.loading = false;
+  state.bankAccounts = action.payload.data || action.payload || [];
+})
+      .addCase(getUserBankDetails.rejected, (state, action) => {
+        state.loadingBankDetails = false;
+        state.error = action.payload;
       });
   },
 });

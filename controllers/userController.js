@@ -341,12 +341,13 @@ export const addBank = async (req, res) => {
 export const getUserBankDetails = async (req, res) => {
   try {
     const { id } = req;
-    // if (!id) return res.status(400).json({ message: "User ID is required" });
-
     const user = await SubAdmin.findById(id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const banks = await Bank.find({ userId: id }).sort({ createdAt: -1 });
+
+    // 🔍 Log the fetched banks
+    console.log("Fetched Banks for user", id, banks);
 
     res.status(200).json({
       success: true,
