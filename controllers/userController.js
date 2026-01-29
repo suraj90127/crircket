@@ -8,6 +8,7 @@ import LoginHistory from "../models/loginHistory.js";
 import axios from "axios";
 import betModel from "../models/betModel.js";
 import UserWithdrawal from "../models/userwithdrawalModel.js";
+import Recharge from "../models/rechargeModel.js";
 
 // Register User
 export const registerUser = async (req, res) => {
@@ -459,5 +460,243 @@ export const getWithdrawalById = async (req, res) => {
   } catch (error) {
     console.error("Get Withdrawal Error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
+export const zilpay = async (req, res) => {
+  // const {id} = req;
+  const id = "697b0553de892b5d435cd774";
+  try {
+
+    const { amount, type } = req.body;
+    const money = Number(amount);
+
+    if (!money || money <= 99) {
+      return res.status(200).json({
+        message: "Minimum recharge 100",
+        status: false,
+        // timeStamp: timeNow(),
+      });
+    }
+
+    // Find user by token
+    const user = await SubAdmin.findById(id);
+    
+    if (!user) {
+      return res.status(200).json({
+        message: "User not found",
+        status: false,
+        // timeStamp: timeNow(),
+      });
+    }
+
+    // const checkTime = timerJoin2(Date.now());
+
+    // // Demo user handling
+    // if (user.isdemo === 1) {
+    //   const client_transaction_id = generateOrderId();
+
+    //   // Create demo recharge
+    //   const demoRecharge = new Recharge({
+    //     userId: user.id_user,
+    //     id_order: client_transaction_id,
+    //     transaction_id: "0",
+    //     phone: user.phone,
+    //     money: money,
+    //     type: type,
+    //     status: 1, // Completed
+    //     today: checkTime,
+    //     url: "1",
+    //     time: checkTime,
+    //     isdemo: 1,
+    //     userStatus: 0
+    //   });
+
+    //   await demoRecharge.save();
+
+    //   // Update user balance
+    //   user.money += money;
+    //   await user.save();
+
+    //   return res.status(200).json({
+    //     message: "Demo Amount is added",
+    //     status: false,
+    //     timeStamp: timeNow(),
+    //   });
+    // }
+
+    // Real payment processing
+    const params = {
+      amount: money,
+      auth: "YUTMH4E1YAJQWIA5J92T",
+      callback: "https://www.reddy111.bet/api/webapi/zilpayCallback",
+      redirect_url: "https://www.reddy111.bet",
+      user: user.phone,
+    };
+
+    const response = await axios.post("https://api.zilpay.live/api/payin2", params);
+    
+    if (response.data.status === "success") {
+      // Create pending recharge
+      const recharge = new Recharge({
+        userId: id,
+        id_order: response.data.order_id,
+        phone: user.phone,
+        money: money,
+        type: type,
+        status: 0, // Pending
+      });
+
+      await recharge.save();
+
+      return res.status(200).json({
+        message: "Payment initiated",
+        status: true,
+        data: response.data,
+      });
+    } else {
+      return res.status(400).json({
+        message: "Payment initiation failed",
+        status: false,
+        timeStamp: timeNow(),
+      });
+    }
+  } catch (error) {
+    console.error("Zilpay payment error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+export const zilpayCallback = async (req, res) => {
+  const { request_user, amount, merchanttransid, status } = req.body;
+
+  console.log("Incoming Zilpay callback:", req.body);
+
+  try {
+    // Find recharge by order ID
+    const recharge = await Recharge.findOne({ id_order: merchanttransid });
+    
+    if (!recharge) {
+      console.log("Transaction not found.");
+      return res.status(404).json({
+        message: "Transaction not found",
+        success: false,
+      });
+    }
+
+    // Check if already processed
+    if (recharge.status === 1) {
+      console.log("Recharge already completed. Skipping update.");
+      return res.json("success");
+    }
+
+    // const checkTime = timerJoin2(Date.now());
+
+    // Check if this is user's first successful recharge
+    // const firstRecharge = await Recharge.findOne({
+    //   phone: recharge.phone,
+    //   status: 1,
+    //   isdemo: 0
+    // });
+
+    // Fetch bonus slabs in ascending order
+    // const bonusSlabs = await RechargeBonus.find({ is_active: 1 })
+    //   .sort({ recAmount: 1 });
+
+    // let bonus = 0;
+    const depositAmount = parseFloat(recharge.money);
+
+    // ✅ FIRST RECHARGE BONUS LOGIC
+    // if (!firstRecharge) {
+    //   for (let i = 0; i < bonusSlabs.length; i++) {
+    //     const slab = bonusSlabs[i];
+    //     const currentAmount = parseFloat(slab.recAmount);
+    //     const nextAmount = bonusSlabs[i + 1] 
+    //       ? parseFloat(bonusSlabs[i + 1].recAmount) 
+    //       : Infinity;
+
+    //     if (slab.is_fisrtrecharge === 1) {
+    //       if (depositAmount >= currentAmount && depositAmount < nextAmount) {
+    //         if (slab.is_persent === 1) {
+    //           bonus = (depositAmount * parseFloat(slab.bonus)) / 100;
+    //         } else {
+    //           bonus = parseFloat(slab.bonus);
+    //         }
+    //         break;
+    //       }
+    //     }
+    //   }
+
+    //   if (bonus > 0) {
+    //     // Find user
+    //     const user = await User.findOne({ phone: recharge.phone });
+        
+    //     if (user) {
+    //       // Update user with bonus
+    //       user.money += bonus;
+    //       user.total_money += bonus;
+    //       user.recharge += bonus;
+    //       await user.save();
+
+    //       // Create transaction history for bonus
+    //       const bonusTransaction = new TransactionHistory({
+    //         phone: recharge.phone,
+    //         detail: "First deposit bonus",
+    //         balance: bonus,
+    //         time: checkTime,
+    //         type: 'bonus'
+    //       });
+    //       await bonusTransaction.save();
+
+    //       // Handle referral bonus
+    //       const refferalCode = user.invite;
+    //       if (refferalCode) {
+    //         const referralUser = await User.findOne({ code: refferalCode });
+            
+    //         if (referralUser) {
+    //           referralUser.money += bonus;
+    //           referralUser.total_money += bonus;
+    //           await referralUser.save();
+
+    //           const referralTransaction = new TransactionHistory({
+    //             phone: referralUser.phone,
+    //             detail: "Referral bonus",
+    //             balance: bonus,
+    //             time: checkTime,
+    //             type: 'referral'
+    //           });
+    //           await referralTransaction.save();
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+    // ✅ Update recharge status
+    recharge.status = 1;
+    await recharge.save();
+
+    // ✅ Update user wallet with deposit amount
+    const user = await SubAdmin.findById(recharge.userId);
+    
+    if (user) {
+      user.avbalance += depositAmount;
+      await user.save();
+    }
+
+    return res.json("success");
+  } catch (error) {
+    console.error("Zilpay callback error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
   }
 };
