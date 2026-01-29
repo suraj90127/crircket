@@ -22,6 +22,7 @@ import casinoRoutes from './routes/casinoRoutes.js'
 import Allgame from "./routes/Allgameroutes.js"
 
 
+
 import { cronJobGame1p } from "./controllers/cronJobs.js";
 import { setupWebSocket } from "./socket/bettingSocket.js"; // ✅ New file for WebSocket
 
@@ -68,6 +69,7 @@ app.use("/api", tennisRoutes);
 app.use("/api", marketAnalizeRoutes); // Ensure this import is defined
 app.use("/api",casinoRoutes);
 app.use("/api/game",Allgame);
+
 
 
 // Static file serving
