@@ -21,7 +21,10 @@ import {
   FaMoneyBillWave,
   FaShieldAlt,
   FaQrcode,
-  FaPhoneAlt
+  FaPhoneAlt,
+  FaExclamationTriangle,
+  FaQuestion,
+  FaInfoCircle
 } from "react-icons/fa";
 import { toast, Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -30,11 +33,13 @@ import {
   addBankAccount, 
   requestWithdrawal, 
   getWithdrawalHistory,
-  clearWalletState 
+  clearWalletState,
+  getUserBankDetails
 } from '../redux/reducer/walletSlice';
 
 const DepositWithdrawal = () => {
   const dispatch = useDispatch();
+  
   const {
     balance,
     bankAccounts,
@@ -44,6 +49,7 @@ const DepositWithdrawal = () => {
     success,
     pagination
   } = useSelector((state) => state.wallet);
+  
   const { userInfo } = useSelector((state) => state.auth);
 
   const [activeTab, setActiveTab] = useState("deposit");
@@ -63,27 +69,26 @@ const DepositWithdrawal = () => {
     phone: "",
   });
 
+  // New states for popups
+  const [showDepositConfirm, setShowDepositConfirm] = useState(false);
+  const [pendingDeposit, setPendingDeposit] = useState(null);
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
+  const [pendingWithdraw, setPendingWithdraw] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [bankToDelete, setBankToDelete] = useState(null);
+
   const [depositHistory, setDepositHistory] = useState([]);
-
-  console.log("userInfo1234567", userInfo);
-  
-
-  // Quick deposit amounts
-  const quickDepositAmounts = [100, 500, 1000, 5000];
-
-  // Payment methods
-  const paymentMethods = [
-    { id: "upi", name: "UPI", icon: FaQrcode },
-    { id: "card", name: "Credit/Debit Card", icon: FaCreditCard },
-    { id: "netbanking", name: "Net Banking", icon: FaBuilding },
-    { id: "wallet", name: "Wallet", icon: FaWallet }
-  ];
 
   // Load initial data
   useEffect(() => {
     dispatch(checkBalance());
+    dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log("Bank Accounts from Redux:", bankAccounts);
+  }, [bankAccounts]);
 
   // Handle success/error messages
   useEffect(() => {
@@ -96,6 +101,18 @@ const DepositWithdrawal = () => {
       dispatch(clearWalletState());
     }
   }, [success, error, dispatch]);
+
+  // Handle bank account selection on bankAccounts change
+  useEffect(() => {
+    if (bankAccounts && bankAccounts.length > 0 && !selectedBank) {
+      const defaultAccount = bankAccounts.find(acc => acc.isDefault);
+      if (defaultAccount) {
+        setSelectedBank(defaultAccount.id);
+      } else {
+        setSelectedBank(bankAccounts[0].id);
+      }
+    }
+  }, [bankAccounts, selectedBank]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -149,9 +166,12 @@ const DepositWithdrawal = () => {
       toast.error("Please enter valid 11-digit IFSC code");
       return;
     }
-      console.log("BANK FORM DATA 👉", bankForm);
+    if (!bankForm.phone.trim() || bankForm.phone.length !== 10) {
+      toast.error("Please enter valid 10-digit phone number");
+      return;
+    }
+
     dispatch(addBankAccount(bankForm));
-    setShowAddBankPopup(false);
     
     // Reset form
     setBankForm({
@@ -164,31 +184,25 @@ const DepositWithdrawal = () => {
     });
   };
 
-
-
   const handleDeleteBankAccount = (id) => {
-    const updatedAccounts = bankAccounts.filter(account => account.id !== id);
-    // Note: You need to implement delete bank account API endpoint
-    // For now, just update local state
-    setBankAccounts(updatedAccounts);
-    
-    if (selectedBank === id && updatedAccounts.length > 0) {
-      setSelectedBank(updatedAccounts[0].id);
-    } else if (updatedAccounts.length === 0) {
-      setSelectedBank(null);
+    setBankToDelete(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteBank = () => {
+    if (bankToDelete) {
+      // Call your delete API here
+      toast.success("Bank account deleted successfully");
+      // Refresh bank list
+      dispatch(getUserBankDetails());
     }
-    
-    toast.success("Bank account removed successfully!");
+    setShowDeleteConfirm(false);
+    setBankToDelete(null);
   };
 
   const handleSetDefaultBank = (id) => {
-    const updatedAccounts = bankAccounts.map(account => ({
-      ...account,
-      isDefault: account.id === id
-    }));
     // Note: You need to implement set default bank API endpoint
-    setBankAccounts(updatedAccounts);
-    toast.success("Default bank account updated!");
+    toast.error("Set default bank functionality not implemented yet");
   };
 
   const handleQuickDeposit = (amount) => {
@@ -212,7 +226,7 @@ const DepositWithdrawal = () => {
     // Calculate bonus (10% of deposit)
     const bonus = Math.floor(amount * 0.1);
 
-    const newDeposit = {
+    const depositData = {
       id: Date.now(),
       amount: amount,
       displayAmount: `₹${amount.toLocaleString()}`,
@@ -230,20 +244,27 @@ const DepositWithdrawal = () => {
       transactionId: `TXN${Date.now().toString().slice(-8)}`
     };
 
-    setDepositHistory([newDeposit, ...depositHistory]);
-    setDepositAmount("");
-    
-    // Note: You need to implement deposit API endpoint
-    // For now, just show success message
-    toast.success(
-      <div>
-        <div className="font-bold">Deposit Request Submitted!</div>
-        <div>Amount: ₹{amount.toLocaleString()}</div>
-        <div>Bonus: ₹{bonus.toLocaleString()}</div>
-        <div>Status: Processing</div>
-      </div>,
-      { duration: 4000 }
-    );
+    setPendingDeposit(depositData);
+    setShowDepositConfirm(true);
+  };
+
+  const confirmDeposit = () => {
+    if (pendingDeposit) {
+      setDepositHistory([pendingDeposit, ...depositHistory]);
+      setDepositAmount("");
+      
+      toast.success(
+        <div>
+          <div className="font-bold">Deposit Request Submitted!</div>
+          <div>Amount: ₹{pendingDeposit.amount.toLocaleString()}</div>
+          <div>Bonus: ₹{Math.floor(pendingDeposit.amount * 0.1).toLocaleString()}</div>
+          <div>Status: Processing</div>
+        </div>,
+        { duration: 4000 }
+      );
+    }
+    setShowDepositConfirm(false);
+    setPendingDeposit(null);
   };
 
   const handleWithdraw = () => {
@@ -259,7 +280,7 @@ const DepositWithdrawal = () => {
       return;
     }
 
-    if (bankAccounts.length === 0) {
+    if (!bankAccounts || bankAccounts.length === 0) {
       toast.error("Please add a bank account first");
       setShowAddBankPopup(true);
       return;
@@ -270,26 +291,33 @@ const DepositWithdrawal = () => {
       return;
     }
 
-    if (amount > balance) {
+    if (amount > (userInfo?.avbalance || 0)) {
       toast.error("Insufficient balance");
       return;
     }
 
     const selectedBankAccount = bankAccounts.find(acc => acc.id === selectedBank);
+    if (!selectedBankAccount) {
+      toast.error("Selected bank account not found");
+      return;
+    }
 
     const withdrawalData = {
-      amount,
-      paymentMethod: "bank_transfer",
-      accountDetails: {
-        bankName: selectedBankAccount.bankName,
-        accountNumber: selectedBankAccount.accountNumber,
-        ifscCode: selectedBankAccount.ifsc,
-        accountHolderName: selectedBankAccount.accountHolder
-      }
+      amount: amount,
+      bankAccountId: selectedBank
     };
 
-    dispatch(requestWithdrawal(withdrawalData));
-    setWithdrawAmount("");
+    setPendingWithdraw(withdrawalData);
+    setShowWithdrawConfirm(true);
+  };
+
+  const confirmWithdrawal = () => {
+    if (pendingWithdraw) {
+      dispatch(requestWithdrawal(pendingWithdraw));
+      setWithdrawAmount("");
+    }
+    setShowWithdrawConfirm(false);
+    setPendingWithdraw(null);
   };
 
   const handleLoadMoreHistory = () => {
@@ -325,7 +353,7 @@ const DepositWithdrawal = () => {
             </div>
           </div>
 
-          {historyData.length > 0 ? (
+          {historyData && historyData.length > 0 ? (
             <>
               <div className="overflow-x-auto rounded-xl border border-gray-200">
                 <table className="w-full min-w-max">
@@ -389,7 +417,7 @@ const DepositWithdrawal = () => {
                             <div>
                               <div className="font-medium">{item.bankName || 'N/A'}</div>
                               <div className="text-sm text-gray-600">
-                                {item.accountNumber || 'N/A'}
+                                {item.accountNumber ? `****${item.accountNumber.slice(-4)}` : 'N/A'}
                               </div>
                             </div>
                           </td>
@@ -398,7 +426,7 @@ const DepositWithdrawal = () => {
                           <div className="flex items-center">
                             <FaCalendar className="mr-2 text-gray-400" />
                             <span className="text-gray-700">
-                              {item.date || new Date(item.createdAt).toLocaleDateString()}
+                              {item.date || (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A')}
                             </span>
                           </div>
                         </td>
@@ -411,7 +439,7 @@ const DepositWithdrawal = () => {
                 </table>
               </div>
               
-              {activeTab === "withdrawal" && pagination.currentPage < pagination.totalPages && (
+              {activeTab === "withdrawal" && pagination && pagination.currentPage < pagination.totalPages && (
                 <div className="text-center">
                   <button
                     onClick={handleLoadMoreHistory}
@@ -441,6 +469,17 @@ const DepositWithdrawal = () => {
     }
 
     if (activeTab === "deposit") {
+      // Quick deposit amounts
+      const quickDepositAmounts = [100, 500, 1000, 5000];
+
+      // Payment methods
+      const paymentMethods = [
+        { id: "upi", name: "UPI", icon: FaQrcode },
+        { id: "card", name: "Credit/Debit Card", icon: FaCreditCard },
+        { id: "netbanking", name: "Net Banking", icon: FaBuilding },
+        { id: "wallet", name: "Wallet", icon: FaWallet }
+      ];
+
       return (
         <div className="space-y-8">
           {/* Balance Display */}
@@ -453,7 +492,7 @@ const DepositWithdrawal = () => {
               <div>
                 <p className="text-sm opacity-90">Available Balance</p>
                 <p className="text-4xl font-bold mt-2">
-                  ₹{userInfo?.avbalance}
+                  ₹{(userInfo?.avbalance || 0).toLocaleString()}
                 </p>
               </div>
               <button
@@ -652,7 +691,7 @@ const DepositWithdrawal = () => {
             <div>
               <p className="text-sm opacity-90">Available Balance</p>
               <p className="text-4xl font-bold mt-2">
-                ₹{userInfo?.avbalance}
+                ₹{(userInfo?.avbalance || 0).toLocaleString()}
               </p>
             </div>
             <button
@@ -676,17 +715,20 @@ const DepositWithdrawal = () => {
               <p className="text-gray-600 mt-1">Select bank account for withdrawal</p>
             </div>
             
-            <button
-              onClick={() => setShowAddBankPopup(true)}
-              className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all flex items-center"
-              disabled={loading}
-            >
-              <FaPlus className="mr-2" />
-              Add Bank Account
-            </button>
+            {/* Show Add Bank button ONLY when no bank accounts exist */}
+            {(!bankAccounts || bankAccounts.length === 0) && (
+              <button
+                onClick={() => setShowAddBankPopup(true)}
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all flex items-center"
+                disabled={loading}
+              >
+                <FaPlus className="mr-2" />
+                Add Bank Account
+              </button>
+            )}
           </div>
 
-          {bankAccounts.length > 0 ? (
+          {bankAccounts && bankAccounts.length > 0 ? (
             <div className="space-y-4">
               {bankAccounts.map((account) => (
                 <div
@@ -700,28 +742,26 @@ const DepositWithdrawal = () => {
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
-                            <FaBuilding className="text-2xl text-red-500" />
-                          </div>
-                          <div>
-                            <h4 className="text-lg font-bold text-gray-800">{account.bankName}</h4>
-                            <div className="flex items-center gap-4 mt-1">
-                              <span className="text-sm text-gray-600">
-                                A/C: {account.maskedAccount || account.accountNumber}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-3">
+                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                          <FaBuilding className="text-2xl text-red-500" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold text-gray-800">{account.bankName}</h4>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
+                            <span className="text-sm text-gray-600">
+                              A/C: {account.accountNumber ? `****${account.accountNumber.slice(-4)}` : 'N/A'}
+                            </span>
+                            {account.isDefault && (
+                              <span className="px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full self-start">
+                                DEFAULT
                               </span>
-                              {account.isDefault && (
-                                <span className="px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full">
-                                  DEFAULT
-                                </span>
-                              )}
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         <div className="flex items-center">
                           <FaIdCard className="text-gray-400 mr-3" />
                           <div>
@@ -741,21 +781,21 @@ const DepositWithdrawal = () => {
                           <div>
                             <p className="text-xs text-gray-500">Added On</p>
                             <p className="font-medium">
-                              {new Date(account.createdAt).toLocaleDateString()}
+                              {account.createdAt ? new Date(account.createdAt).toLocaleDateString() : 'N/A'}
                             </p>
                           </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap gap-2 mt-4 sm:mt-0">
                       {!account.isDefault && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSetDefaultBank(account.id);
                           }}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                          className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors text-sm"
                           disabled={loading}
                         >
                           Set Default
@@ -766,10 +806,10 @@ const DepositWithdrawal = () => {
                           e.stopPropagation();
                           handleDeleteBankAccount(account.id);
                         }}
-                        className="p-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                        className="p-2 sm:p-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                         disabled={loading}
                       >
-                        <FaTrash />
+                        <FaTrash className="text-sm sm:text-base" />
                       </button>
                     </div>
                   </div>
@@ -831,7 +871,7 @@ const DepositWithdrawal = () => {
           <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-xl border border-red-100">
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600">Available Balance:</span>
-              <span className="text-2xl font-bold text-green-600">₹{balance.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-green-600">₹{(userInfo?.avbalance || 0).toLocaleString()}</span>
             </div>
             {withdrawAmount && Number(withdrawAmount) > 0 && (
               <div className="mt-4 grid grid-cols-2 gap-4">
@@ -844,7 +884,7 @@ const DepositWithdrawal = () => {
                 <div>
                   <p className="text-gray-600 text-sm">Remaining Balance</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ₹{(balance - Number(withdrawAmount)).toLocaleString()}
+                    ₹{((userInfo?.avbalance || 0) - Number(withdrawAmount)).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -856,23 +896,37 @@ const DepositWithdrawal = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={handleWithdraw}
-            disabled={!withdrawAmount || Number(withdrawAmount) < 500 || bankAccounts.length === 0 || !selectedBank || loading || withdrawAmount > balance}
+            disabled={
+              !withdrawAmount || 
+              Number(withdrawAmount) < 500 || 
+              !bankAccounts || 
+              bankAccounts.length === 0 || 
+              !selectedBank || 
+              loading || 
+              Number(withdrawAmount) > (userInfo?.avbalance || 0)
+            }
             className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] ${
-              withdrawAmount && Number(withdrawAmount) >= 500 && bankAccounts.length > 0 && selectedBank && !loading && withdrawAmount <= balance
+              withdrawAmount && 
+              Number(withdrawAmount) >= 500 && 
+              bankAccounts && 
+              bankAccounts.length > 0 && 
+              selectedBank && 
+              !loading && 
+              Number(withdrawAmount) <= (userInfo?.avbalance || 0)
                 ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
           >
             {loading ? (
               'Processing...'
-            ) : withdrawAmount > balance ? (
+            ) : withdrawAmount && Number(withdrawAmount) > (userInfo?.avbalance || 0) ? (
               'INSUFFICIENT BALANCE'
-            ) : withdrawAmount && Number(withdrawAmount) >= 500 && bankAccounts.length > 0 && selectedBank ? (
+            ) : withdrawAmount && Number(withdrawAmount) >= 500 && bankAccounts && bankAccounts.length > 0 && selectedBank ? (
               <>
                 <FaWallet className="inline mr-2" />
                 WITHDRAW ₹{Number(withdrawAmount).toLocaleString()}
               </>
-            ) : bankAccounts.length === 0 ? (
+            ) : !bankAccounts || bankAccounts.length === 0 ? (
               "ADD BANK ACCOUNT FIRST"
             ) : !selectedBank ? (
               "SELECT BANK ACCOUNT"
@@ -941,6 +995,215 @@ const DepositWithdrawal = () => {
         }}
       />
       
+      {/* Deposit Confirmation Popup */}
+      {showDepositConfirm && pendingDeposit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl border border-white/30 animate-scaleIn">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200/50">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                <FaExclamationTriangle className="mr-3 text-green-500" />
+                Confirm Deposit
+              </h3>
+              <button
+                onClick={() => {
+                  setShowDepositConfirm(false);
+                  setPendingDeposit(null);
+                }}
+                className="text-3xl text-gray-400 hover:text-red-500 transition"
+                disabled={loading}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-6 text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+                  <FaWallet className="text-3xl text-green-600" />
+                </div>
+                <h4 className="text-lg font-bold text-gray-800 mb-2">
+                  Confirm Deposit Request
+                </h4>
+                <p className="text-gray-600">
+                  Please review your deposit details
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200 mb-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Deposit Amount:</span>
+                    <span className="font-bold text-gray-800">
+                      ₹{pendingDeposit.amount.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Bonus (10%):</span>
+                    <span className="font-bold text-green-600">
+                      +₹{Math.floor(pendingDeposit.amount * 0.1).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Payment Method:</span>
+                    <span className="font-bold text-gray-800">{selectedPaymentMethod}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total Credit:</span>
+                    <span className="font-bold text-green-600">
+                      ₹{(pendingDeposit.amount + Math.floor(pendingDeposit.amount * 0.1)).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowDepositConfirm(false);
+                    setPendingDeposit(null);
+                  }}
+                  className="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeposit}
+                  disabled={loading}
+                  className="flex-1 py-3 bg-gradient-to-r from-[#52b202] to-[#3d8c00] text-white font-bold rounded-xl hover:from-[#3d8c00] hover:to-[#52b202] shadow-md hover:shadow-lg transition"
+                >
+                  {loading ? 'Processing...' : 'Confirm Deposit'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Withdrawal Confirmation Popup */}
+      {showWithdrawConfirm && pendingWithdraw && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl border border-white/30 animate-scaleIn">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200/50">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                <FaExclamationTriangle className="mr-3 text-red-500" />
+                Confirm Withdrawal
+              </h3>
+              <button
+                onClick={() => {
+                  setShowWithdrawConfirm(false);
+                  setPendingWithdraw(null);
+                }}
+                className="text-3xl text-gray-400 hover:text-red-500 transition"
+                disabled={loading}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-6 text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                  <FaQuestion className="text-3xl text-red-600" />
+                </div>
+                <h4 className="text-lg font-bold text-gray-800 mb-2">
+                  Are you sure you want to withdraw?
+                </h4>
+                <p className="text-gray-600">
+                  Amount: <span className="font-bold text-red-600">₹{Number(withdrawAmount).toLocaleString()}</span>
+                </p>
+              </div>
+              
+              {selectedBank && bankAccounts && (
+                <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-xl border border-red-200 mb-6">
+                  <div className="flex items-center mb-3">
+                    <FaBuilding className="text-red-500 mr-3" />
+                    <span className="font-bold text-gray-800">
+                      {bankAccounts.find(acc => acc.id === selectedBank)?.bankName}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    A/C: ****{bankAccounts.find(acc => acc.id === selectedBank)?.accountNumber?.slice(-4)}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowWithdrawConfirm(false);
+                    setPendingWithdraw(null);
+                  }}
+                  className="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmWithdrawal}
+                  disabled={loading}
+                  className="flex-1 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition"
+                >
+                  {loading ? 'Processing...' : 'Confirm Withdraw'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Delete Bank Confirmation Popup */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl border border-white/30">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200/50">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                <FaExclamationTriangle className="mr-3 text-red-500" />
+                Confirm Delete
+              </h3>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="text-3xl text-gray-400 hover:text-red-500 transition"
+                disabled={loading}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-6 text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                  <FaTrash className="text-3xl text-red-600" />
+                </div>
+                <h4 className="text-lg font-bold text-gray-800 mb-2">
+                  Delete Bank Account?
+                </h4>
+                <p className="text-gray-600">
+                  This action cannot be undone. Are you sure you want to delete this bank account?
+                </p>
+              </div>
+              
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteBank}
+                  disabled={loading}
+                  className="flex-1 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition"
+                >
+                  {loading ? 'Deleting...' : 'Delete Account'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Add Bank Account Popup */}
       {showAddBankPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
@@ -963,7 +1226,6 @@ const DepositWithdrawal = () => {
 
             {/* Body */}
             <div className="p-6 space-y-5">
-
               {/* Account Type */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
@@ -974,20 +1236,23 @@ const DepositWithdrawal = () => {
                   <span className="font-medium text-gray-800">Bank Account</span>
                 </div>
               </div>
-               {/* Phone number */}
+
+              {/* Phone number */}
               <div>
-  <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-    <FaPhoneAlt className="mr-2" /> Phone Number
-  </label>
-  <input
-    type="tel"
-    name="phone"
-    value={bankForm.phone}
-    onChange={handleBankFormChange}
-    placeholder="Enter phone number"
-    className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
-  />
-</div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <FaPhoneAlt className="mr-2" /> Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={bankForm.phone}
+                  onChange={handleBankFormChange}
+                  placeholder="Enter phone number"
+                  className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
+                  maxLength="10"
+                  pattern="[0-9]{10}"
+                />
+              </div>
 
               {/* Holder Name */}
               <div>
@@ -1034,6 +1299,7 @@ const DepositWithdrawal = () => {
                   placeholder="Enter account number"
                   className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
                   disabled={loading}
+                  maxLength="18"
                 />
               </div>
 
@@ -1050,6 +1316,7 @@ const DepositWithdrawal = () => {
                   placeholder="Enter IFSC code"
                   className="w-full p-4 rounded-xl border border-gray-300 bg-white/70 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
                   disabled={loading}
+                  maxLength="11"
                 />
               </div>
 
@@ -1068,7 +1335,6 @@ const DepositWithdrawal = () => {
                   </>
                 )}
               </button>
-
             </div>
           </div>
         </div>
@@ -1085,7 +1351,7 @@ const DepositWithdrawal = () => {
         </div>
 
         {/* Main Container */}
-        <div className="bg-white rounded overflow-hidden ">
+        <div className="bg-white rounded overflow-hidden">
           {/* Tab Navigation */}
           <div className="flex">
             <button
@@ -1144,6 +1410,3 @@ const DepositWithdrawal = () => {
 };
 
 export default DepositWithdrawal;
-
-
-
