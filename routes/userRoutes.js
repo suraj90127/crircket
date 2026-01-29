@@ -4,6 +4,7 @@ import {
   changePasswordByUserSelf,
   getLoginHistory,
   getPasswordHistoryByUserId,
+  getUserBankDetails,
   getUserById,
   getWithdrawalById,
   getWithdrawalHistory,
@@ -28,6 +29,7 @@ router.get("/password/history", authMiddleware, getPasswordHistoryByUserId);
 router.get("/get/user-login-history/:userId", authMiddleware, getLoginHistory);
 router.post("/user/addbank",authMiddleware, addBank);
 router.post("/user/withdraw",authMiddleware, userWithdrawal);
+router.get("/user/bank-details", authMiddleware, getUserBankDetails);
 router.get("/user/withdraw-history", authMiddleware, getWithdrawalHistory);
 router.get("/user/withdraw-history/:id", authMiddleware, getWithdrawalById);
 

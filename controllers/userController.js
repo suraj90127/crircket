@@ -334,6 +334,27 @@ export const addBank = async (req, res) => {
 };
 
 
+export const getUserBankDetails = async (req, res) => {
+  try {
+    const { id } = req;
+    // if (!id) return res.status(400).json({ message: "User ID is required" });
+
+    const user = await SubAdmin.findById(id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const banks = await Bank.find({ userId: id }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Bank details fetched successfully",
+      data: banks,
+    });
+  } catch (error) {
+    console.error("Get Bank Details Error:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 export const userWithdrawal = async (req, res) => {
   try {
     const { id } = req;
