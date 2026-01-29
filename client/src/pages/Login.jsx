@@ -5,6 +5,7 @@ import { FaUser, FaEye, FaEyeSlash, FaWhatsapp } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { MdOutlineLogin } from "react-icons/md";
 import logo from '../assets/icons/theme-1709828838678-aura555.png';
+
 import { useDispatch } from 'react-redux';
 import { loginUser } from "../redux/reducer/authReducer";
 import { toast } from "react-toastify";
@@ -50,9 +51,11 @@ const Login = () => {
           <IoMdClose size={24} />
         </Link>
 
+         
+
         {/* Header Section */}
         <div className="flex flex-col items-center mb-8">
-          <img src={logo} className="h-16 w-auto mb-4 drop-shadow-lg" alt="logo" />
+          <img src="https://i.ibb.co/8Dx8cb2f/REDDY111-LOGO.png" alt="loading"  className="h-16 w-auto mb-4 drop-shadow-lg" />
           <h2 className="text-red-500 font-bold text-xl tracking-wider uppercase">Login Now</h2>
         </div>
 
@@ -104,10 +107,10 @@ const Login = () => {
             <label className="flex items-center gap-1 cursor-pointer">
               <input type="checkbox" className="accent-red-500" /> Remember Me?
             </label>
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <span className="hover:text-white cursor-pointer">Lost Username?</span>
               <span className="hover:text-white cursor-pointer">Forgot Password?</span>
-            </div>
+            </div> */}
           </div>
 
           {/* Action Buttons */}
@@ -125,12 +128,12 @@ const Login = () => {
                 <div className="h-[1px] bg-white/20 flex-1"></div>
             </div>
 
-            <button 
+            {/* <button 
               type="button"
               className="w-full bg-blue-600 text-white font-bold py-2.5 rounded-full hover:bg-blue-700 transition-colors shadow-lg"
             >
               Login with Demo ID
-            </button>
+            </button> */}
 
             <button 
               type="button"
@@ -141,9 +144,9 @@ const Login = () => {
           </div>
         </form>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
+        {/* <p className="mt-6 text-center text-xs text-gray-400">
           Don't have account? <Link to="/register" className="text-red-500 font-bold hover:underline">Register</Link>
-        </p>
+        </p> */}
       </div>
     </div>
   );

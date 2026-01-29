@@ -42,13 +42,15 @@ import Events from "./Account/Events";
 import EventMatches from "./Account/EventMatches";
 import ProfitHistory from "./Account/ProfitHistory";
 import OpenBet from "./pages/OpenBet";
-import Register from "./pages/Regiterpage";
+// import Register from "./pages/Regiterpage";
 import ForgotPassword from "./pages/Forgetpassword";
 import Casinogame from "./Games/Casinogame";
 import Originalgames from "./Games/Originalgames";
 import GameProviders from "./components/GameProviders";
 import Gamesections from "./components/Gamesections";
 import GamePlayer from "./components/GamePlayer";
+import DepositWithdrawal from "./pages/DepositWithdrawal";
+
 
 function App() {
   return (
@@ -56,7 +58,7 @@ function App() {
       <Routes>
         {/* ================= PUBLIC ROUTES WITHOUT LAYOUT ================= */}
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* <Route path="/register" element={<Register />} /> */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
         {/* ================= MAIN LAYOUT ROUTES ================= */}
@@ -84,6 +86,8 @@ function App() {
         <Route path="/games/:providerId" element={<Gamesections />} />
       
         <Route path="/play/:gameId" element={<GamePlayer />} />
+
+        <Route path="/wallet" element={<DepositWithdrawal />} />
 
         
                   
@@ -146,3 +150,5 @@ function App() {
 }
 
 export default App;
+
+

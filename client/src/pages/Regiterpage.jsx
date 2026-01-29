@@ -51,7 +51,7 @@ const Register = () => {
 
         {/* Header Section */}
         <div className="flex flex-col items-center mb-6 mt-4">
-          <img src={logo} className="h-12 w-auto mb-3 drop-shadow-lg" alt="logo" />
+          <img src="https://i.ibb.co/8Dx8cb2f/REDDY111-LOGO.png" alt="loading"  className="h-12 w-auto mb-3 drop-shadow-lg" />
           <h2 className="text-red-500 font-bold text-xl tracking-wider uppercase italic">Join Us Now</h2>
         </div>
 

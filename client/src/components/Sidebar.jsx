@@ -27,7 +27,7 @@ const AllSportsList = [
   { name: "Soccer", link: "/soccer", icon: MdSportsSoccer, hasArrow: true, count: 7 },
   { name: "Tennis", link: "/tennis", icon: MdSportsTennis, hasArrow: true, count: 1 },
   { name: "Original", link: "/games/OriginalsGames", icon: MdOutlineLocalFireDepartment, hasArrow: false },
-  { name: "Sports Book", link: "/sports-book", icon: BsShieldShaded, hasArrow: false },
+  // { name: "Sports Book", link: "/sports-book", icon: BsShieldShaded, hasArrow: false },
   { name: "Horse Racing", link: "/horse-racing", icon: FaHorseHead, hasArrow: false },
   { name: "Casino", link: "/games/liveCasino", icon: MdCasino, hasArrow: false },
   { name: "Int Casino", link: "/int-casino", icon: MdOutlineHistoryEdu, hasArrow: false },
