@@ -4,20 +4,20 @@ import api from "../api";
 /* =========================
    CHECK WALLET BALANCE
 ========================= */
-export const checkBalance = createAsyncThunk(
-  "wallet/checkBalance",
-  async (_, { rejectWithValue }) => {
+export const zilpayRecharge = createAsyncThunk(
+  "auth/zilpay",
+  async ({amount,type}, { rejectWithValue, fulfillWithValue }) => {
+  
     try {
-      const res = await api.get("/wallet/balance", {
+      const { data } = await api.post("/zilpay", {amount:amount,type:type} ,{
         withCredentials: true,
       });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+      return fulfillWithValue(data);
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
   }
 );
-
 /* =========================
    ADD BANK ACCOUNT
 ========================= */
@@ -155,7 +155,8 @@ const walletSlice = createSlice({
     balance: 0,
     bankAccounts: [],
     withdrawals: [],
-
+   errorMessage: "",
+    successMessage: "",
     loadingBalance: false,
     loadingBank: false,
     loadingWithdraw: false,
@@ -179,6 +180,10 @@ const walletSlice = createSlice({
       state.error = null;
       state.success = null;
     },
+      messageClear: (state) => {
+      state.errorMessage = "";
+      state.successMessage = "";
+    },
     setDepositHistory: (state, action) => {
       // For managing deposit history locally
       if (action.payload) {
@@ -194,20 +199,18 @@ const walletSlice = createSlice({
   extraReducers: (builder) => {
     builder
       /* ========== CHECK BALANCE ========== */
-      .addCase(checkBalance.pending, (state) => {
-        state.loadingBalance = true;
-        state.error = null;
+       .addCase(zilpayRecharge.pending, (state) => {
+        state.loader = true;
       })
-      .addCase(checkBalance.fulfilled, (state, action) => {
-        state.loadingBalance = false;
-        state.balance = action.payload.balance || 0;
-        state.success = action.payload.message || "Balance fetched successfully";
+      .addCase(zilpayRecharge.rejected, (state, { payload }) => {
+        // console.log('register rejected payload:', payload); // Log payload
+        state.errorMessage = payload?.errorMessage || "An error occurred";
+        state.loader = false;
       })
-      .addCase(checkBalance.rejected, (state, action) => {
-        state.loadingBalance = false;
-        state.error = action.payload || "Failed to fetch balance";
+      .addCase(zilpayRecharge.fulfilled, (state, { payload }) => {
+     state.successMessage = payload.message;
+        state.loader = false;
       })
-
       /* ========== ADD BANK ACCOUNT ========== */
       .addCase(addBankAccount.pending, (state) => {
         state.loadingBank = true;
@@ -349,23 +352,23 @@ const walletSlice = createSlice({
   },
 });
 
-export const { clearWalletState, setDepositHistory, resetWithdrawForm } = walletSlice.actions;
+export const {messageClear, clearWalletState, setDepositHistory, resetWithdrawForm } = walletSlice.actions;
 
 // Selectors for easier state access
-export const selectBalance = (state) => state.wallet.balance;
-export const selectBankAccounts = (state) => state.wallet.bankAccounts;
-export const selectWithdrawals = (state) => state.wallet.withdrawals;
-export const selectLoading = (state) => ({
-  balance: state.wallet.loadingBalance,
-  bank: state.wallet.loadingBank,
-  withdraw: state.wallet.loadingWithdraw,
-  history: state.wallet.loadingHistory,
-  bankDetails: state.wallet.loadingBankDetails,
-  deleteBank: state.wallet.loadingDeleteBank,
-  setDefault: state.wallet.loadingSetDefault,
-});
-export const selectError = (state) => state.wallet.error;
-export const selectSuccess = (state) => state.wallet.success;
-export const selectPagination = (state) => state.wallet.pagination;
+// export const selectBalance = (state) => state.wallet.balance;
+// export const selectBankAccounts = (state) => state.wallet.bankAccounts;
+// export const selectWithdrawals = (state) => state.wallet.withdrawals;
+// export const selectLoading = (state) => ({
+//   balance: state.wallet.loadingBalance,
+//   bank: state.wallet.loadingBank,
+//   withdraw: state.wallet.loadingWithdraw,
+//   history: state.wallet.loadingHistory,
+//   bankDetails: state.wallet.loadingBankDetails,
+//   deleteBank: state.wallet.loadingDeleteBank,
+//   setDefault: state.wallet.loadingSetDefault,
+// });
+// export const selectError = (state) => state.wallet.error;
+// export const selectSuccess = (state) => state.wallet.success;
+// export const selectPagination = (state) => state.wallet.pagination;
 
 export default walletSlice.reducer;

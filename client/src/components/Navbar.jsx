@@ -265,7 +265,7 @@ const Navbar = ({ onNavItemClick }) => {
                           </Link>
 
                           <Link
-                            to="/wallet"
+                            to="/depositwithdrawal"
                             onClick={() => setShowProfileDropdown(false)}
                             className="block px-4 py-2.5 hover:bg-gray-50 transition"
                           >

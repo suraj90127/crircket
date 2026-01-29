@@ -33,7 +33,8 @@ import {
   requestWithdrawal, 
   getWithdrawalHistory,
   clearWalletState,
-  getUserBankDetails
+  getUserBankDetails,
+  zilpayRecharge
 } from '../redux/reducer/walletSlice';
 
 const DepositWithdrawal = () => {
@@ -74,6 +75,7 @@ const DepositWithdrawal = () => {
   const [pendingWithdraw, setPendingWithdraw] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bankToDelete, setBankToDelete] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [depositHistory, setDepositHistory] = useState([]);
 
@@ -271,8 +273,23 @@ const DepositWithdrawal = () => {
 
   const confirmDeposit = () => {
     if (pendingDeposit) {
-      setDepositHistory([pendingDeposit, ...depositHistory]);
-      setDepositAmount("");
+      // setDepositHistory([pendingDeposit, ...depositHistory]);
+      // setDepositAmount("");
+      const amount = Number(pendingDeposit.amount);
+
+        dispatch(zilpayRecharge({ amount, type:"online" })).then((res) => {
+           toast.success(res.payload.message);
+            if (res.payload.status) {
+             
+              window.location.href = res.payload.data.url;
+              //  window.open(urls, "_blank");
+            } else {
+             toast.success("pyament failed");
+            }
+            setTimeout(() => {
+              setSuccessMessage("");
+            }, 1000);
+          });
       
       toast.success(
         <div>
@@ -1000,12 +1017,12 @@ const DepositWithdrawal = () => {
                       ₹{pendingDeposit.amount.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  {/* <div className="flex justify-between">
                     <span className="text-gray-600">Bonus (10%):</span>
                     <span className="font-bold text-green-600">
                       +₹{Math.floor(pendingDeposit.amount * 0.1).toLocaleString()}
                     </span>
-                  </div>
+                  </div> */}
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment Method:</span>
                     <span className="font-bold text-gray-800">{selectedPaymentMethod}</span>
@@ -1013,7 +1030,7 @@ const DepositWithdrawal = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total Credit:</span>
                     <span className="font-bold text-green-600">
-                      ₹{(pendingDeposit.amount + Math.floor(pendingDeposit.amount * 0.1)).toLocaleString()}
+                      ₹{(pendingDeposit.amount)}
                     </span>
                   </div>
                 </div>
