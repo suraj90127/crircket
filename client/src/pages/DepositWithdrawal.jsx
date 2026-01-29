@@ -79,21 +79,38 @@ const DepositWithdrawal = () => {
 
   const [depositHistory, setDepositHistory] = useState([]);
 
-  // Load initial data
+  // Load initial data और periodic balance refresh
   useEffect(() => {
+    // Initial load
     dispatch(checkBalance());
     dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
+    
+    // Refresh balance every 30 seconds
+    const intervalId = setInterval(() => {
+      dispatch(checkBalance());
+    }, 30000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
   }, [dispatch]);
 
   useEffect(() => {
     console.log("Bank Accounts from Redux:", bankAccounts);
   }, [bankAccounts]);
 
-  // Handle success/error messages
+  // Handle success/error messages और balance refresh
   useEffect(() => {
     if (success) {
       toast.success(success);
+      
+      // अगर success message withdrawal/deposit related है, तो balance refresh करें
+      if (success.toLowerCase().includes("withdrawal") || 
+          success.toLowerCase().includes("deposit") ||
+          success.toLowerCase().includes("bank")) {
+        dispatch(checkBalance());
+      }
+      
       dispatch(clearWalletState());
     }
     if (error) {
@@ -104,15 +121,39 @@ const DepositWithdrawal = () => {
 
   // Handle bank account selection on bankAccounts change
   useEffect(() => {
-    if (bankAccounts && bankAccounts.length > 0 && !selectedBank) {
-      const defaultAccount = bankAccounts.find(acc => acc.isDefault);
-      if (defaultAccount) {
-        setSelectedBank(defaultAccount.id);
+    console.log("Bank accounts changed:", bankAccounts);
+    
+    if (bankAccounts && bankAccounts.length > 0) {
+      // अगर selectedBank valid नहीं है या null है
+      if (!selectedBank) {
+        const defaultAccount = bankAccounts.find(acc => acc.isDefault);
+        const accountToSelect = defaultAccount || bankAccounts[0];
+        if (accountToSelect) {
+          setSelectedBank(accountToSelect._id || accountToSelect.id);
+        }
       } else {
-        setSelectedBank(bankAccounts[0].id);
+        // Check if selectedBank still exists
+        const bankExists = bankAccounts.some(acc => 
+          acc._id === selectedBank || acc.id === selectedBank
+        );
+        if (!bankExists) {
+          const defaultAccount = bankAccounts.find(acc => acc.isDefault);
+          const accountToSelect = defaultAccount || bankAccounts[0];
+          if (accountToSelect) {
+            setSelectedBank(accountToSelect._id || accountToSelect.id);
+          }
+        }
       }
+    } else {
+      setSelectedBank(null);
     }
   }, [bankAccounts, selectedBank]);
+
+  // Debug info for userInfo changes
+  useEffect(() => {
+    console.log("User Info updated:", userInfo);
+    console.log("Current balance:", userInfo?.avbalance);
+  }, [userInfo]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -193,8 +234,9 @@ const DepositWithdrawal = () => {
     if (bankToDelete) {
       // Call your delete API here
       toast.success("Bank account deleted successfully");
-      // Refresh bank list
+      // Refresh bank list और balance
       dispatch(getUserBankDetails());
+      dispatch(checkBalance());
     }
     setShowDeleteConfirm(false);
     setBankToDelete(null);
@@ -262,6 +304,12 @@ const DepositWithdrawal = () => {
         </div>,
         { duration: 4000 }
       );
+      
+      // Simulate balance update (In real app, this would come from API)
+      // For now, we'll refresh the balance
+      setTimeout(() => {
+        dispatch(checkBalance());
+      }, 2000);
     }
     setShowDepositConfirm(false);
     setPendingDeposit(null);
@@ -269,6 +317,7 @@ const DepositWithdrawal = () => {
 
   const handleWithdraw = () => {
     const amount = Number(withdrawAmount);
+    const currentBalance = userInfo?.avbalance || 0;
     
     if (!withdrawAmount || amount <= 0) {
       toast.error("Please enter valid withdrawal amount");
@@ -277,6 +326,11 @@ const DepositWithdrawal = () => {
 
     if (amount < 500) {
       toast.error("Minimum withdrawal amount is ₹500");
+      return;
+    }
+
+    if (amount > currentBalance) {
+      toast.error(`Insufficient balance. Available: ₹${currentBalance.toLocaleString()}`);
       return;
     }
 
@@ -291,20 +345,10 @@ const DepositWithdrawal = () => {
       return;
     }
 
-    if (amount > (userInfo?.avbalance || 0)) {
-      toast.error("Insufficient balance");
-      return;
-    }
-
-    const selectedBankAccount = bankAccounts.find(acc => acc.id === selectedBank);
-    if (!selectedBankAccount) {
-      toast.error("Selected bank account not found");
-      return;
-    }
-
     const withdrawalData = {
       amount: amount,
-      bankAccountId: selectedBank
+      bankAccountId: selectedBank,
+      paymentMethod: "Bank Transfer"
     };
 
     setPendingWithdraw(withdrawalData);
@@ -313,7 +357,12 @@ const DepositWithdrawal = () => {
 
   const confirmWithdrawal = () => {
     if (pendingWithdraw) {
-      dispatch(requestWithdrawal(pendingWithdraw));
+      dispatch(requestWithdrawal(pendingWithdraw)).then(() => {
+        // Withdrawal success के बाद balance refresh करें
+        setTimeout(() => {
+          dispatch(checkBalance());
+        }, 1000);
+      });
       setWithdrawAmount("");
     }
     setShowWithdrawConfirm(false);
@@ -730,91 +779,104 @@ const DepositWithdrawal = () => {
 
           {bankAccounts && bankAccounts.length > 0 ? (
             <div className="space-y-4">
-              {bankAccounts.map((account) => (
-                <div
-                  key={account.id}
-                  onClick={() => setSelectedBank(account.id)}
-                  className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
-                    selectedBank === account.id
-                      ? "border-red-500 bg-red-50 shadow-md"
-                      : "border-gray-200 hover:border-red-300 hover:shadow-sm"
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-3">
-                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                          <FaBuilding className="text-2xl text-red-500" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-lg font-bold text-gray-800">{account.bankName}</h4>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
-                            <span className="text-sm text-gray-600">
-                              A/C: {account.accountNumber ? `****${account.accountNumber.slice(-4)}` : 'N/A'}
-                            </span>
-                            {account.isDefault && (
-                              <span className="px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full self-start">
-                                DEFAULT
+              {bankAccounts.map((account) => {
+                const accountId = account._id || account.id;
+                const isSelected = selectedBank === accountId;
+                
+                return (
+                  <div
+                    key={accountId}
+                    onClick={() => {
+                      console.log("Selecting bank:", accountId);
+                      setSelectedBank(accountId);
+                    }}
+                    className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-red-500 bg-red-50 shadow-md"
+                        : "border-gray-200 hover:border-red-300 hover:shadow-sm"
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-3">
+                          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                            <FaBuilding className="text-2xl text-red-500" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-lg font-bold text-gray-800">{account.bankName}</h4>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
+                              <span className="text-sm text-gray-600">
+                                A/C: {account.accountNumber ? `****${account.accountNumber.slice(-4)}` : 'N/A'}
                               </span>
-                            )}
+                              {isSelected && (
+                                <span className="px-3 py-1 bg-green-100 text-green-600 text-xs font-bold rounded-full self-start">
+                                  SELECTED
+                                </span>
+                              )}
+                              {account.isDefault && (
+                                <span className="px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full self-start">
+                                  DEFAULT
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                          <div className="flex items-center">
+                            <FaIdCard className="text-gray-400 mr-3" />
+                            <div>
+                              <p className="text-xs text-gray-500">Account Holder</p>
+                              <p className="font-medium">{account.accountHolderName}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <FaBarcode className="text-gray-400 mr-3" />
+                            <div>
+                              <p className="text-xs text-gray-500">IFSC Code</p>
+                              <p className="font-mono font-medium">{account.ifscCode}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <FaCalendar className="text-gray-400 mr-3" />
+                            <div>
+                              <p className="text-xs text-gray-500">Added On</p>
+                              <p className="font-medium">
+                                {account.createdAt ? new Date(account.createdAt).toLocaleDateString() : 'N/A'}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                        <div className="flex items-center">
-                          <FaIdCard className="text-gray-400 mr-3" />
-                          <div>
-                            <p className="text-xs text-gray-500">Account Holder</p>
-                            <p className="font-medium">{account.accountHolderName}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center">
-                          <FaBarcode className="text-gray-400 mr-3" />
-                          <div>
-                            <p className="text-xs text-gray-500">IFSC Code</p>
-                            <p className="font-mono font-medium">{account.ifscCode}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center">
-                          <FaCalendar className="text-gray-400 mr-3" />
-                          <div>
-                            <p className="text-xs text-gray-500">Added On</p>
-                            <p className="font-medium">
-                              {account.createdAt ? new Date(account.createdAt).toLocaleDateString() : 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2 mt-4 sm:mt-0">
-                      {!account.isDefault && (
+                      <div className="flex flex-wrap gap-2 mt-4 sm:mt-0">
+                        {!account.isDefault && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSetDefaultBank(accountId);
+                            }}
+                            className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                            disabled={loading}
+                          >
+                            Set Default
+                          </button>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleSetDefaultBank(account.id);
+                            handleDeleteBankAccount(accountId);
                           }}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                          className="p-2 sm:p-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                           disabled={loading}
                         >
-                          Set Default
+                          <FaTrash className="text-sm sm:text-base" />
                         </button>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteBankAccount(account.id);
-                        }}
-                        className="p-2 sm:p-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                        disabled={loading}
-                      >
-                        <FaTrash className="text-sm sm:text-base" />
-                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
@@ -1119,11 +1181,11 @@ const DepositWithdrawal = () => {
                   <div className="flex items-center mb-3">
                     <FaBuilding className="text-red-500 mr-3" />
                     <span className="font-bold text-gray-800">
-                      {bankAccounts.find(acc => acc.id === selectedBank)?.bankName}
+                      {bankAccounts.find(acc => (acc._id === selectedBank || acc.id === selectedBank))?.bankName}
                     </span>
                   </div>
                   <div className="text-sm text-gray-600">
-                    A/C: ****{bankAccounts.find(acc => acc.id === selectedBank)?.accountNumber?.slice(-4)}
+                    A/C: ****{bankAccounts.find(acc => (acc._id === selectedBank || acc.id === selectedBank))?.accountNumber?.slice(-4)}
                   </div>
                 </div>
               )}
