@@ -24,10 +24,12 @@ const rechargeSchema = new mongoose.Schema({
     default: 'zilpay'
     },
   status: {
-    type: Number,
-    default: 0, // 0 = pending, 1 = completed, 2 = failed
-    enum: [0, 1, 2]
+    type: String,
+    default: "pending", // pending, rejected, completed
+    enum: ['pending', 'rejected', 'completed'],
   },
+  code: { type: String, required: true },
+  invite: { type: String },
   createdAt: {
     type: Date,
     default: Date.now

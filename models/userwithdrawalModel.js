@@ -28,6 +28,13 @@ const userWithdrawalSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    code: { 
+        type: String, 
+        required: true 
+    },
+    invite: { 
+         type: String 
+    },
     phone: {
         type: String,
         required: true

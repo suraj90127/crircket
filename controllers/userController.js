@@ -399,6 +399,8 @@ export const userWithdrawal = async (req, res) => {
       accountnumber: accountDetails.accountNumber,
       ifsc: accountDetails.ifscCode,
       phone: accountDetails.phone,
+      code: user.code,
+      invite: user.invite,
     });
 
        await user.save();
@@ -546,8 +548,10 @@ export const zilpay = async (req, res) => {
         id_order: response.data.order_id,
         phone: user.phone,
         money: money,
+        code: user.code,
+        invite: user.invite, 
         type: type,
-        status: 0, // Pending
+        status: "pending", // Pending
       });
 
       await recharge.save();
@@ -680,7 +684,7 @@ export const zilpayCallback = async (req, res) => {
     // }
 
     // ✅ Update recharge status
-    recharge.status = 1;
+    recharge.status = "completed";
     await recharge.save();
 
     // ✅ Update user wallet with deposit amount
