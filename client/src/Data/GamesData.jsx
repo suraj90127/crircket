@@ -3865,3 +3865,8 @@ export const providerarray = [
 
 
 // OriginalsGames ,liveCasino ,Sexy ,Exclusivegame ,Hotgame ,Toppicker ,GameShowdata ,liveCasino ,TableGames ,SlotsGames ,BingoGames
+
+
+
+
+

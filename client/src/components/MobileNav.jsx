@@ -19,11 +19,11 @@ export default function MobileNavigation() {
     <div className="fixed bottom-0 left-0 z-[100] w-full md:hidden">
       
       {/* Support Icon - Scaled down */}
-      <div className="absolute -top-12 right-4 flex items-center justify-center">
+      {/* <div className="absolute -top-12 right-4 flex items-center justify-center">
         <div className="bg-[#701a52] h-10 w-10 rounded-full rounded-tr-none flex items-center justify-center text-white shadow-lg cursor-pointer">
           <FaCommentDots className="h-5 w-5" />
         </div>
-      </div>
+      </div> */}
 
       {/* Main Navigation Bar - More compact height */}
       <div className="bg-black rounded-t-[20px] pb-2 pt-1">

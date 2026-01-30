@@ -706,7 +706,7 @@ const DepositWithdrawal = () => {
             
             <button
               onClick={() => setShowHistory(true)}
-              className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-[#52b202] text-[#52b202] font-bold rounded-xl hover:bg-green-50 transition-all flex items-center justify-center"
+              className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-[#52b202] mb-5 text-[#52b202] font-bold rounded-xl hover:bg-green-50 transition-all flex items-center justify-center"
               disabled={loading}
             >
               <FaHistory className="mr-3" />
@@ -948,7 +948,7 @@ const DepositWithdrawal = () => {
         </div>
 
         {/* Important Notes */}
-        <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 sm:p-6 rounded-2xl border border-red-200">
+        <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 sm:p-6 rounded-2xl mb-5 border border-red-200">
           <h4 className="text-base sm:text-lg font-bold text-red-700 mb-3 sm:mb-4 flex items-center">
             <FaShieldAlt className="mr-3" />
             Important Notes & Guidelines
@@ -1341,7 +1341,7 @@ const DepositWithdrawal = () => {
       )}
 
       {/* Header */}
-      <div className="max-w-6xl mx-auto mb-6 sm:mb-8 px-3 sm:px-4">
+      <div className=" mx-auto mb-6 sm:mb-8 pb-16  ">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
             <FaWallet className="inline mr-3 text-[#52b202]" />

@@ -5,8 +5,8 @@ import AuthModel from "../models/subAdminModel.js";
  * 🔴 LIVE ENVIRONMENT ONLY
  */
 const apiUrl = "https://zapcore.live/api";
-const launchUrl = "https://zapcore.live/api/test/launch-game/fun";
-const key = "3aqSD5NzX8sKj2MG2CkNS6mqerzJywUW";
+const launchUrl = "https://zapcore.live/api/launch-game";
+const key = "7WDK1i6lsLyV1WG461bxw91bgKViYMZl";
 // const key = "3aqSD5NzX8sKj2MG2CkNS6mqerzJywUW";
 
 /* =========================

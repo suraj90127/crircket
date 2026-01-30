@@ -71,7 +71,20 @@ const Gamesections = () => {
     []
   );
 
-  console.log("userInfovvvvvvv",userInfo);
+  const providerNames = {
+    OriginalsGames: "Originals",
+    liveCasino: "Live Casino",
+    Sexy: "Sexy ",
+    Exclusivegame: "Exclusive ",
+    Hotgame: "Hot ",
+    Toppicker: "Top Picker",
+    GameShowdata: "Game Shows",
+    TableGames: "Table ",
+    SlotsGames: "Slots ",
+    BingoGames: "Bingo ",
+  };
+  
+
   
 
   const apiGames = allGamesdata?.data || [];
@@ -115,11 +128,19 @@ const Gamesections = () => {
      GAME CLICK → REDIRECT TO GAME PAGE
   =========================== */
   const handlePlayGame = async (game) => {
+    
+    if (!userInfo) {
+      navigate("/login", {
+        state: { redirectTo: `/games/${providerId || ""}` },
+      });
+      return;
+    }
+  
     try {
       await dispatch(
         launchGame({ gameId: game.game_uid || game.id })
       ).unwrap();
-
+  
       navigate(`/play/${game.game_uid || game.id}`, {
         state: {
           gameUrl: game.game_url,
@@ -131,6 +152,7 @@ const Gamesections = () => {
       alert(err || "Failed to launch game");
     }
   };
+  
 
   /* ===========================
      UI
@@ -149,8 +171,9 @@ const Gamesections = () => {
             </button>
 
             <h2 className="text-sm md:text-base font-black uppercase tracking-widest text-red-600">
-              {providerId ? `${providerId} Games` : "All Games"}
-            </h2>
+  {providerId ? `${providerNames[providerId] || providerId} Games` : "All Games"}
+</h2>
+
           </div>
 
           {/* Search */}
@@ -280,3 +303,4 @@ const Gamesections = () => {
 };
 
 export default Gamesections;
+
