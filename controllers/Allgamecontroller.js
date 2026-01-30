@@ -46,7 +46,7 @@ export const checkBalance = async (req, res) => {
 ========================= */
 export const transferBalance = async (req, res) => {
   try {
-    console.log("USER 👉", req.user);
+
 
     /* 1️⃣ Find user */
     const user = await AuthModel.findById(req.user._id);
@@ -60,10 +60,14 @@ export const transferBalance = async (req, res) => {
     const playerid = user.phone;
 
     /* 2️⃣ Get balance from Zapcore */
+
     const balRes = await axios.post(`${apiUrl}/Userbalance`, {
       playerid,
       key,
     });
+
+    console.log("balResbalRes",balRes);
+    
 
     const zapBalance = Number(balRes.data?.Balance || 0);
     console.log("ZAPCORE BALANCE 👉", zapBalance);
@@ -74,7 +78,7 @@ export const transferBalance = async (req, res) => {
       /* 4️⃣ Add balance to local wallet */
       const updatedUser = await AuthModel.findByIdAndUpdate(
         user._id,
-        { $inc: { credit: zapBalance } },
+        { $inc: { avbalance: zapBalance } },
         { new: true }
       );
 
@@ -92,10 +96,10 @@ export const transferBalance = async (req, res) => {
           [
             {
               $set: {
-                credit: {
+                avbalance: {
                   $cond: [
-                    { $gte: ["$credit", zapBalance] },
-                    { $subtract: ["$credit", zapBalance] },
+                    { $gte: ["$avbalance", zapBalance] },
+                    { $subtract: ["$avbalance", zapBalance] },
                     0,
                   ],
                 },
@@ -115,7 +119,7 @@ export const transferBalance = async (req, res) => {
         status: true,
         message: "Balance transferred successfully",
         transferredAmount: zapBalance,
-        currentBalance: updatedUser.balance,
+        currentBalance: updatedUser.avbalance,
       });
     }
 
@@ -166,14 +170,17 @@ export const launchGame = async (req, res) => {
     const response = await axios.post(launchUrl, {
       playerid,
       uid: gameId,
-      opening_balance: user.balance,
+      opening_balance: user.avbalance,
       key,
     });
+
+    // console.log("response",response);
+    
 
     if (response.data?.status === true) {
       await AuthModel.updateOne(
         { _id: user._id },
-        { $set: { credit: 0 } }
+        { $set: { avbalance: 0 } }
       );
 
       return res.json({

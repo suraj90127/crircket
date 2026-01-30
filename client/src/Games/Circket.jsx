@@ -177,7 +177,7 @@ const Cricket = () => {
         )}
       </div>
 
-      <Games />
+      {/* <Games /> */}
       <PageFooter />
     </div>
   );

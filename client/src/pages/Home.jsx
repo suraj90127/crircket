@@ -190,7 +190,7 @@ export default function Home() {
 
       <GameProviders/>
 
-      <Games />
+      {/* <Games /> */}
       <PageFooter />
     </div>
   );
