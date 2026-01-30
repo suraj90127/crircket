@@ -16,6 +16,7 @@ import {
   zilpayCallback,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
+import { getWhatsapp } from "../controllers/admin/adminController.js";
 
 const router = express.Router();
 
@@ -38,5 +39,6 @@ router.get("/user/withdraw-history/:id", authMiddleware, getWithdrawalById);
 router.post('/zilpay', zilpay);
 router.post('/webapi/zilpayCallback', zilpayCallback);
 router.get("/user/recharge-history", authMiddleware, getRechargeHistory);
+router.get("/get-whatsapp", getWhatsapp);
 
 export default router;
