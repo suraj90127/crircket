@@ -70,6 +70,10 @@ const DepositWithdrawal = () => {
     phone: "",
   });
 
+
+
+  
+
   // New states for popups
   const [showDepositConfirm, setShowDepositConfirm] = useState(false);
   const [pendingDeposit, setPendingDeposit] = useState(null);
@@ -534,7 +538,7 @@ const DepositWithdrawal = () => {
               <div>
                 <p className="text-xs sm:text-sm opacity-90">Available Balance</p>
                 <p className="text-2xl sm:text-4xl font-bold mt-1 sm:mt-2">
-                  ₹{(userInfo?.avbalance).toLocaleString()}
+                ₹{(userInfo?.avbalance || 0).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -969,6 +973,11 @@ const DepositWithdrawal = () => {
       </div>
     );
   };
+
+
+
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4 md:p-6">

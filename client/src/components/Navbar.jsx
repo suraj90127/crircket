@@ -334,7 +334,7 @@ const Navbar = ({ onNavItemClick }) => {
               {/* Mobile Profile Section */}
               <div className="md:hidden flex items-center gap-2">
                 <div className="text-white text-right leading-tight">
-                  <p className="text-[9px] font-bold">Bal: <span className="text-green-400">₹{userInfo?.balance?.toFixed(2)}</span></p>
+                  <p className="text-[9px] font-bold">Bal: <span className="text-green-400">₹{userInfo?.avbalance?.toFixed(2)}</span></p>
                   <p className="text-[9px]">Exp: <span className="text-red-500">₹{userInfo?.exposure?.toFixed(2)}</span></p>
                 </div>
                 
@@ -646,3 +646,23 @@ const Navbar = ({ onNavItemClick }) => {
 };
 
 export default Navbar;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

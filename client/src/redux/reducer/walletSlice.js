@@ -75,16 +75,20 @@ export const getWithdrawalHistory = createAsyncThunk(
     }
   }
 );
+
+
 export const getRechargeHistory = createAsyncThunk(
   "wallet/rechargeHistory",
   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const res = await api.get(
-        "/user/recharge-history?page=${page}&limit=${limit}",
+        `/user/recharge-history?page=${page}&limit=${limit}`, 
         { withCredentials: true }
       );
+      console.log("Recharge History API Response:", res.data);
       return res.data;
     } catch (err) {
+      console.error("Recharge History Error:", err.response?.data || err.message);
       return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
