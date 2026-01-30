@@ -66,7 +66,7 @@ export const getWithdrawalHistory = createAsyncThunk(
   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const res = await api.get(
-        `/wallet/withdrawals?page=${page}&limit=${limit}`,
+        "/user/withdraw-history?page=${page}&limit=${limit}",
         { withCredentials: true }
       );
       return res.data;
@@ -132,7 +132,6 @@ const walletSlice = createSlice({
       state.error = null;
       state.success = null;
     },
-<<<<<<< HEAD
       messageClear: (state) => {
       state.errorMessage = "";
       state.successMessage = "";
@@ -147,13 +146,10 @@ const walletSlice = createSlice({
       // Can be used to reset withdrawal form states
       state.loadingWithdraw = false;
     },
-=======
->>>>>>> 75b54381 (from anoop)
   },
 
   extraReducers: (builder) => {
     builder
-<<<<<<< HEAD
       /* ========== CHECK BALANCE ========== */
        .addCase(zilpayRecharge.pending, (state) => {
         state.loader = true;
@@ -168,22 +164,6 @@ const walletSlice = createSlice({
         state.loader = false;
       })
       /* ========== ADD BANK ACCOUNT ========== */
-=======
-      /* BALANCE */
-      .addCase(checkBalance.pending, (state) => {
-        state.loadingBalance = true;
-      })
-      .addCase(checkBalance.fulfilled, (state, action) => {
-        state.loadingBalance = false;
-        state.balance = action.payload.balance;
-      })
-      .addCase(checkBalance.rejected, (state, action) => {
-        state.loadingBalance = false;
-        state.error = action.payload;
-      })
-
-      /* ADD BANK */
->>>>>>> 75b54381 (from anoop)
       .addCase(addBankAccount.pending, (state) => {
         state.loadingBank = true;
       })
@@ -243,27 +223,7 @@ const walletSlice = createSlice({
   },
 });
 
-<<<<<<< HEAD
 export const {messageClear, clearWalletState, setDepositHistory, resetWithdrawForm } = walletSlice.actions;
 
-// Selectors for easier state access
-// export const selectBalance = (state) => state.wallet.balance;
-// export const selectBankAccounts = (state) => state.wallet.bankAccounts;
-// export const selectWithdrawals = (state) => state.wallet.withdrawals;
-// export const selectLoading = (state) => ({
-//   balance: state.wallet.loadingBalance,
-//   bank: state.wallet.loadingBank,
-//   withdraw: state.wallet.loadingWithdraw,
-//   history: state.wallet.loadingHistory,
-//   bankDetails: state.wallet.loadingBankDetails,
-//   deleteBank: state.wallet.loadingDeleteBank,
-//   setDefault: state.wallet.loadingSetDefault,
-// });
-// export const selectError = (state) => state.wallet.error;
-// export const selectSuccess = (state) => state.wallet.success;
-// export const selectPagination = (state) => state.wallet.pagination;
 
-=======
-export const { clearWalletState } = walletSlice.actions;
->>>>>>> 75b54381 (from anoop)
 export default walletSlice.reducer;
