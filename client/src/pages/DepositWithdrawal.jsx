@@ -34,7 +34,8 @@ import {
   getWithdrawalHistory,
   clearWalletState,
   getUserBankDetails,
-  zilpayRecharge
+  zilpayRecharge,
+  getRechargeHistory
 } from '../redux/reducer/walletSlice';
 
 const DepositWithdrawal = () => {
@@ -43,6 +44,7 @@ const DepositWithdrawal = () => {
   const {
     bankAccounts,
     withdrawals,
+    rechargeData,
     loading,
     error,
     success,
@@ -83,6 +85,7 @@ const DepositWithdrawal = () => {
   useEffect(() => {
     dispatch(getUserBankDetails());
     dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
+    dispatch(getRechargeHistory({ page: 1, limit: 10 }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -347,12 +350,13 @@ const DepositWithdrawal = () => {
   const handleLoadMoreHistory = () => {
     const nextPage = currentPage + 1;
     dispatch(getWithdrawalHistory({ page: nextPage, limit: 10 }));
+    dispatch(getRechargeHistory({ page: nextPage, limit: 10 }));
     setCurrentPage(nextPage);
   };
 
   const renderContent = () => {
     if (showHistory) {
-      const historyData = activeTab === "deposit" ? depositHistory : withdrawals;
+      const historyData = activeTab === "deposit" ? rechargeData : withdrawals;
       const columns = activeTab === "deposit" 
         ? ["No.", "Transaction ID", "Amount", "Bonus", "Status", "Payment Method", "Date", "Reason"]
         : ["No.", "Transaction ID", "Amount", "Status", "Bank Account", "Date", "Reason"];

@@ -705,3 +705,34 @@ export const zilpayCallback = async (req, res) => {
     });
   }
 };
+
+
+export const getRechargeHistory = async (req, res) => {
+  try {
+    const { id } = req ;
+    // const { id } = req ;
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    const recharge = await Recharge.find({ userId: id })
+      .sort({ createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum);
+
+    const total = await Recharge.countDocuments({ userId: id });
+
+    res.status(200).json({
+      success: true,
+      message: "Recharge history fetched successfully",
+      data: recharge,
+      total,
+      totalPages: Math.ceil(total / limitNum),
+      currentPage: pageNum,
+    });
+  } catch (error) {
+    console.error("Get Withdrawal History Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

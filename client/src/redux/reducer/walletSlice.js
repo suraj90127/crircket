@@ -75,6 +75,20 @@ export const getWithdrawalHistory = createAsyncThunk(
     }
   }
 );
+export const getRechargeHistory = createAsyncThunk(
+  "wallet/rechargeHistory",
+  async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
+    try {
+      const res = await api.get(
+        "/user/recharge-history?page=${page}&limit=${limit}",
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
 
 /* =========================
    GET USER BANK DETAILS
@@ -109,6 +123,7 @@ const walletSlice = createSlice({
     balance: 0,
     bankAccounts: [],
     withdrawals: [],
+    rechargeData: [],
    errorMessage: "",
     successMessage: "",
     loadingBalance: false,
@@ -203,6 +218,21 @@ const walletSlice = createSlice({
         state.pagination.currentPage = action.payload.currentPage;
       })
       .addCase(getWithdrawalHistory.rejected, (state, action) => {
+        state.loadingHistory = false;
+        state.error = action.payload;
+      })
+      /* HISTORY */
+      .addCase(getRechargeHistory.pending, (state) => {
+        state.loadingHistory = true;
+      })
+      .addCase(getRechargeHistory.fulfilled, (state, action) => {
+        state.loadingHistory = false;
+        state.rechargeData = action.payload.data;
+        state.pagination.total = action.payload.total;
+        state.pagination.totalPages = action.payload.totalPages;
+        state.pagination.currentPage = action.payload.currentPage;
+      })
+      .addCase(getRechargeHistory.rejected, (state, action) => {
         state.loadingHistory = false;
         state.error = action.payload;
       })

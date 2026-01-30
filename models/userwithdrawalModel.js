@@ -16,6 +16,7 @@ const userWithdrawalSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'rejected', 'completed'],
         default: 'pending'
     },
+
     paymentMethod: {
         type: String,
         required: true

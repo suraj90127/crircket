@@ -4,6 +4,7 @@ import {
   changePasswordByUserSelf,
   getLoginHistory,
   getPasswordHistoryByUserId,
+  getRechargeHistory,
   getUserBankDetails,
   getUserById,
   getWithdrawalById,
@@ -36,5 +37,6 @@ router.get("/user/withdraw-history", authMiddleware, getWithdrawalHistory);
 router.get("/user/withdraw-history/:id", authMiddleware, getWithdrawalById);
 router.post('/zilpay', zilpay);
 router.post('/webapi/zilpayCallback', zilpayCallback);
+router.get("/user/recharge-history", authMiddleware, getRechargeHistory);
 
 export default router;
