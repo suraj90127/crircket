@@ -147,38 +147,13 @@ const walletSlice = createSlice({
       state.error = null;
       state.success = null;
     },
-      messageClear: (state) => {
-      state.errorMessage = "";
-      state.successMessage = "";
-    },
-    setDepositHistory: (state, action) => {
-      // For managing deposit history locally
-      if (action.payload) {
-        state.depositHistory = action.payload;
-      }
-    },
-    resetWithdrawForm: (state) => {
-      // Can be used to reset withdrawal form states
-      state.loadingWithdraw = false;
-    },
   },
 
   extraReducers: (builder) => {
     builder
-      /* ========== CHECK BALANCE ========== */
-       .addCase(zilpayRecharge.pending, (state) => {
-        state.loader = true;
-      })
-      .addCase(zilpayRecharge.rejected, (state, { payload }) => {
-        // console.log('register rejected payload:', payload); // Log payload
-        state.errorMessage = payload?.errorMessage || "An error occurred";
-        state.loader = false;
-      })
-      .addCase(zilpayRecharge.fulfilled, (state, { payload }) => {
-     state.successMessage = payload.message;
-        state.loader = false;
-      })
-      /* ========== ADD BANK ACCOUNT ========== */
+      
+
+      /* ADD BANK */
       .addCase(addBankAccount.pending, (state) => {
         state.loadingBank = true;
       })
@@ -253,7 +228,5 @@ const walletSlice = createSlice({
   },
 });
 
-export const {messageClear, clearWalletState, setDepositHistory, resetWithdrawForm } = walletSlice.actions;
-
-
+export const { clearWalletState } = walletSlice.actions;
 export default walletSlice.reducer;
