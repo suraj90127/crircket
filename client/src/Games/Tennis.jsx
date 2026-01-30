@@ -168,7 +168,7 @@ const Tennis = () => {
         renderContent()
       )}
 
-      <Games />
+      {/* <Games /> */}
       <PageFooter />
     </div>
   );

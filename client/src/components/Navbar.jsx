@@ -13,6 +13,20 @@ import { MdOutlineArrowDropDown, MdOutlineLogout, MdSportsCricket, MdSportsSocce
 import { FaSearchPlus, FaEyeSlash, FaEye, FaHorseHead } from "react-icons/fa";
 import { IoSearchOutline } from "react-icons/io5";
 import { GiBoxingGlove } from "react-icons/gi";
+import {
+  
+  MdLiveTv,
+  MdWhatshot,
+  MdStars,
+  MdEmojiEvents,
+  MdTableBar,
+} from "react-icons/md";
+import {
+  FaGamepad,
+  FaHeart,
+  FaThLarge,
+  FaTicketAlt,
+} from "react-icons/fa";
 
 // Redux & API
 import { getUser, loginUser, user_reset } from "../redux/reducer/authReducer";
@@ -119,15 +133,27 @@ const Navbar = ({ onNavItemClick }) => {
     { name: "Soccer", path: "/soccer", icon: <MdSportsSoccer />, count: 7 },
     { name: "Tennis", path: "/tennis", icon: <MdSportsTennis />, count: 1 },
     // { name: "Sports Book", path: "/sports-book", icon: <BsShieldShaded /> },
-    { name: "Original", path: "/games/OriginalsGames", icon: <MdOutlineLocalFireDepartment /> },
-    { name: "Horse Racing", path: "/horse-racing", icon: <FaHorseHead /> },
-    { name: "Casino", path: "/games/liveCasino", icon: <MdCasino /> },
     
-    { name: "Int Casino", path: "/int-casino", icon: <MdCasino /> },
-    { name: "Virtual", path: "/virtual", icon: <MdOutlineSportsEsports /> },
-    { name: "Boxing", path: "/boxing", icon: <GiBoxingGlove /> },
-    { name: "Basketball", path: "/basketball", icon: <MdSportsBasketball />, count: 5 },
-    { name: "Kabaddi", path: "/kabaddi", icon: <MdSportsKabaddi /> }
+    // { name: "Horse Racing", path: "/horse-racing", icon: <FaHorseHead /> },
+   
+    
+    // { name: "Int Casino", path: "/int-casino", icon: <MdCasino /> },
+    // { name: "Virtual", path: "/virtual", icon: <MdOutlineSportsEsports /> },
+    // { name: "Boxing", path: "/boxing", icon: <GiBoxingGlove /> },
+    // { name: "Basketball", path: "/basketball", icon: <MdSportsBasketball />, count: 5 },
+    // { name: "Kabaddi", path: "/kabaddi", icon: <MdSportsKabaddi /> }
+
+
+    { name: "OriginalsGames", path: "/games/OriginalsGames", icon: <FaGamepad /> },
+  { name: "LiveCasino", path: "/games/liveCasino", icon: <MdLiveTv /> },
+  // { name: "Sexy", path: "/games/Sexy", icon: <FaHeart /> },
+  { name: "Exclusivegame", path: "/games/Exclusivegame", icon: <MdStars /> },
+  { name: "Hotgame", path: "/games/Hotgame", icon: <MdWhatshot /> },
+  { name: "Toppicker", path: "/games/Toppicker", icon: <MdEmojiEvents /> },
+  { name: "GameShowdata", path: "/games/GameShowdata", icon: <FaTicketAlt /> },
+  { name: "TableGames", path: "/games/TableGames", icon: <MdTableBar /> },
+  { name: "SlotsGames", path: "/games/SlotsGames", icon: <FaThLarge /> },
+  { name: "BingoGames", path: "/games/BingoGames", icon: <MdCasino /> },
   ];
 
   const getLockedGames = () => {
@@ -192,12 +218,12 @@ const Navbar = ({ onNavItemClick }) => {
 
               {/* Mobile Login/Register Buttons */}
               <div className=" flex items-center gap-2">
-                <button 
+                 {/*  <button 
                   onClick={handleSignupClick}
                   className="bg-[#701a52] text-white border border-white rounded px-2 py-1 text-[10px] font-bold uppercase hover:bg-[#5a1542] transition-all whitespace-nowrap"
                 >
                   Signup
-                </button>
+                </button>  */}
                 <button 
                   onClick={handleLoginClick}
                   className="bg-[#701a52] text-white border border-white rounded px-2 py-1 text-[10px] font-bold uppercase hover:bg-[#5a1542] transition-all whitespace-nowrap"

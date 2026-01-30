@@ -18,7 +18,7 @@ import {
   BingoGames,
 } from "../Data/GamesData";
 
-import { getAllGames, launchGame } from "../redux/reducer/AllgameReducer";
+import { getAllGames, launchGame , checkGameBalance } from "../redux/reducer/AllgameReducer";
 
 const Gamesections = () => {
   const { providerId } = useParams();
@@ -26,6 +26,7 @@ const Gamesections = () => {
   const dispatch = useDispatch();
 
   const { allGamesdata, launchLoading } = useSelector((state) => state.game);
+  const { userInfo, loading } = useSelector((state) => state.auth);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +36,7 @@ const Gamesections = () => {
   // Fetch all games
   useEffect(() => {
     dispatch(getAllGames());
+    dispatch(checkGameBalance());
   }, [dispatch]);
 
   /* ===========================
@@ -68,6 +70,9 @@ const Gamesections = () => {
     ],
     []
   );
+
+  console.log("userInfovvvvvvv",userInfo);
+  
 
   const apiGames = allGamesdata?.data || [];
   const allGames = apiGames.length > 0 ? apiGames : staticAllGames;
@@ -162,7 +167,7 @@ const Gamesections = () => {
         </div>
 
         {/* Game Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 md:gap-6">
           {currentGames.map((game) => (
             <div
               key={game.id || game.game_uid}

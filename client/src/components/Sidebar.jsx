@@ -19,26 +19,58 @@ import { IoMdHome, IoIosPlayCircle, IoIosArrowDown, IoMdChatbubbles } from "reac
 import { FaWhatsapp, FaInstagram, FaHorseHead, FaTelegram } from "react-icons/fa";
 import { GiBoxingGlove } from "react-icons/gi";
 import { BsShieldShaded } from "react-icons/bs";
+import {
+  
+  MdLiveTv,
+  MdWhatshot,
+  MdStars,
+  MdEmojiEvents,
+  MdTableBar,
+} from "react-icons/md";
+import {
+  FaGamepad,
+  FaHeart,
+  FaThLarge,
+  FaTicketAlt,
+} from "react-icons/fa";
 
 const AllSportsList = [
   { name: "Home", link: "/", icon: IoMdHome, hasArrow: false, isHeader: true },
   { name: "In-Play", link: "/in-play", icon: IoIosPlayCircle, hasArrow: false, count: 13 },
-  { name: "Cricket", link: "/cricket", icon: MdSportsCricket, hasArrow: true },
-  { name: "Soccer", link: "/soccer", icon: MdSportsSoccer, hasArrow: true, count: 7 },
-  { name: "Tennis", link: "/tennis", icon: MdSportsTennis, hasArrow: true, count: 1 },
-  { name: "Original", link: "/games/OriginalsGames", icon: MdOutlineLocalFireDepartment, hasArrow: false },
+  { name: "Cricket", link: "/cricket", icon: MdSportsCricket, hasArrow: false },
+  { name: "Soccer", link: "/soccer", icon: MdSportsSoccer, hasArrow: false, count: 7 },
+  { name: "Tennis", link: "/tennis", icon: MdSportsTennis, hasArrow: false, count: 1 },
+  
   // { name: "Sports Book", link: "/sports-book", icon: BsShieldShaded, hasArrow: false },
-  { name: "Horse Racing", link: "/horse-racing", icon: FaHorseHead, hasArrow: false },
-  { name: "Casino", link: "/games/liveCasino", icon: MdCasino, hasArrow: false },
-  { name: "Int Casino", link: "/int-casino", icon: MdOutlineHistoryEdu, hasArrow: false },
-  { name: "Virtual", link: "/virtual", icon: MdOutlineSportsEsports, hasArrow: true },
-  { name: "Boxing", link: "/boxing", icon: GiBoxingGlove, hasArrow: true },
-  { name: "Basketball", link: "/basketball", icon: MdSportsBasketball, hasArrow: true, count: 5 },
-  { name: "Kabaddi", link: "/kabaddi", icon: MdSportsKabaddi, hasArrow: false },
+  // { name: "Horse Racing", link: "/horse-racing", icon: FaHorseHead, hasArrow: false },
+ 
+  // { name: "Int Casino", link: "/int-casino", icon: MdOutlineHistoryEdu, hasArrow: false },
+  // { name: "Virtual", link: "/virtual", icon: MdOutlineSportsEsports, hasArrow: true },
+  // { name: "Boxing", link: "/boxing", icon: GiBoxingGlove, hasArrow: true },
+  // { name: "Basketball", link: "/basketball", icon: MdSportsBasketball, hasArrow: true, count: 5 },
+  // { name: "Kabaddi", link: "/kabaddi", icon: MdSportsKabaddi, hasArrow: false },
+
+
+  { name: "OriginalsGames", link: "/games/OriginalsGames", icon: FaGamepad, hasArrow: false },
+  { name: "LiveCasino", link: "/games/liveCasino", icon: MdLiveTv, hasArrow: false },
+  // { name: "Sexy", link: "/games/sexy", icon: FaHeart, hasArrow: false },
+  { name: "Exclusivegame", link: "/games/Exclusivegame", icon: MdStars, hasArrow: false },
+  { name: "Hotgame", link: "/games/Hotgame", icon: MdWhatshot, hasArrow: false },
+  { name: "Toppicker", link: "/games/Toppicker", icon: MdEmojiEvents, hasArrow: false },
+  { name: "GameShowdata", link: "/games/GameShowdata", icon: FaTicketAlt, hasArrow: false },
+  { name: "TableGames", link: "/games/TableGames", icon: MdTableBar, hasArrow: false },
+  { name: "SlotsGames", link: "/games/SlotsGames", icon: FaThLarge, hasArrow: false },
+  { name: "BingoGames", link: "/games/BingoGames", icon: MdCasino, hasArrow: false },
+
+
+
   { name: "WhatsApp", link: "https://wa.me/", icon: FaWhatsapp, hasArrow: false, color: "text-green-600", external: true },
   { name: "Instagram", link: "https://instagram.com/", icon: FaInstagram, hasArrow: false, color: "text-pink-600", external: true },
   { name: "Telegram", link: "https://t.me/", icon: FaTelegram, hasArrow: false, color: "text-blue-500", external: true },
   { name: "Chat With us", link: "/support", icon: IoMdChatbubbles, hasArrow: false, badge: "Live" },
+
+
+  
 ];
 
 const Sidebar = ({ activeNavItem }) => {
@@ -144,7 +176,7 @@ const Sidebar = ({ activeNavItem }) => {
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1">
             {filteredItems.map((item, index) => {
-              const hasSubItems = item.hasArrow && getSubItems(item.name).length > 0;
+              const hasSubItems = item.hasArrow ;
               const isExpanded = expandedItems[item.name];
               
               return (
@@ -199,7 +231,7 @@ const Sidebar = ({ activeNavItem }) => {
                       </Link>
 
                       {/* Sub-items */}
-                      {hasSubItems && isExpanded && (
+                      {/* {hasSubItems && isExpanded && (
                         <div className="pl-12 bg-gray-50">
                           {getSubItems(item.name).map((subItem, subIndex) => (
                             <Link
@@ -212,7 +244,7 @@ const Sidebar = ({ activeNavItem }) => {
                             </Link>
                           ))}
                         </div>
-                      )}
+                      )} */}
                     </>
                   )}
                 </li>

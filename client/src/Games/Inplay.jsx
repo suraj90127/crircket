@@ -182,7 +182,7 @@ const Inplay = () => {
         ))}
       </div>
 
-      <Games />
+      {/* <Games /> */}
       <PageFooter />
     </div>
   );
