@@ -85,7 +85,7 @@ export const getRechargeHistory = createAsyncThunk(
         `/user/recharge-history?page=${page}&limit=${limit}`, 
         { withCredentials: true }
       );
-      console.log("Recharge History API Response:", res.data);
+      console.log("Recharge History API Response:", res);
       return res.data;
     } catch (err) {
       console.error("Recharge History Error:", err.response?.data || err.message);

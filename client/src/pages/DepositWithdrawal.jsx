@@ -37,6 +37,7 @@ import {
   zilpayRecharge,
   getRechargeHistory
 } from '../redux/reducer/walletSlice';
+import { useNavigate, useParams } from "react-router-dom";
 
 const DepositWithdrawal = () => {
   const dispatch = useDispatch();
@@ -53,7 +54,6 @@ const DepositWithdrawal = () => {
   
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [activeTab, setActiveTab] = useState("deposit");
   const [showHistory, setShowHistory] = useState(false);
   const [showAddBankPopup, setShowAddBankPopup] = useState(false);
   const [selectedBank, setSelectedBank] = useState(null);
@@ -70,9 +70,11 @@ const DepositWithdrawal = () => {
     phone: "",
   });
 
+  const { tab } = useParams(); 
+  const navigate = useNavigate();
 
-
-  
+  // Fix: Use "withdrawal" for consistency with routes
+  const activeTab = tab === "withdrawal" ? "withdrawal" : "deposit";  
 
   // New states for popups
   const [showDepositConfirm, setShowDepositConfirm] = useState(false);
@@ -81,9 +83,6 @@ const DepositWithdrawal = () => {
   const [pendingWithdraw, setPendingWithdraw] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bankToDelete, setBankToDelete] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const [depositHistory, setDepositHistory] = useState([]);
   const [depositLoading, setDepositLoading] = useState(false);
 
   const paymentTypeMap = {
@@ -101,28 +100,31 @@ const DepositWithdrawal = () => {
     dispatch(getRechargeHistory({ page: 1, limit: 10 }));
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log("Bank Accounts from Redux:", bankAccounts);
-  }, [bankAccounts]);
-
   // Handle success/error messages
   useEffect(() => {
     if (success) {
       toast.success(success);
       dispatch(clearWalletState());
+      
+      // Refresh history data after successful operation
+      if (activeTab === "deposit") {
+        dispatch(getRechargeHistory({ page: 1, limit: 10 }));
+      } else {
+        dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
+      }
+      
+      // Refresh bank details if needed
+      dispatch(getUserBankDetails());
     }
     if (error) {
       toast.error(error);
       dispatch(clearWalletState());
     }
-  }, [success, error, dispatch]);
+  }, [success, error, dispatch, activeTab]);
 
   // Handle bank account selection on bankAccounts change
   useEffect(() => {
-    console.log("Bank accounts changed:", bankAccounts);
-    
     if (bankAccounts && bankAccounts.length > 0) {
-      // If selectedBank is not valid or null
       if (!selectedBank) {
         const defaultAccount = bankAccounts.find(acc => acc.isDefault);
         const accountToSelect = defaultAccount || bankAccounts[0];
@@ -130,7 +132,6 @@ const DepositWithdrawal = () => {
           setSelectedBank(accountToSelect._id || accountToSelect.id);
         }
       } else {
-        // Check if selectedBank still exists
         const bankExists = bankAccounts.some(acc => 
           acc._id === selectedBank || acc.id === selectedBank
         );
@@ -146,12 +147,6 @@ const DepositWithdrawal = () => {
       setSelectedBank(null);
     }
   }, [bankAccounts, selectedBank]);
-
-  // Debug info for userInfo changes
-  useEffect(() => {
-    console.log("User Info updated:", userInfo);
-    console.log("Current balance:", userInfo?.avbalance);
-  }, [userInfo]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -188,7 +183,6 @@ const DepositWithdrawal = () => {
   };
 
   const handleAddBankAccount = () => {
-    // Validate all fields
     if (!bankForm.accountHolderName.trim()) {
       toast.error("Please enter account holder name");
       return;
@@ -212,7 +206,7 @@ const DepositWithdrawal = () => {
 
     dispatch(addBankAccount(bankForm));
     
-    // Reset form
+    // Reset form and close popup
     setBankForm({
       accountType: "Bank Account",
       accountHolderName: "",
@@ -221,6 +215,7 @@ const DepositWithdrawal = () => {
       ifscCode: "",
       phone: "",
     });
+    setShowAddBankPopup(false);
   };
 
   const handleDeleteBankAccount = (id) => {
@@ -230,9 +225,8 @@ const DepositWithdrawal = () => {
 
   const confirmDeleteBank = () => {
     if (bankToDelete) {
-      // Call your delete API here
+      // Note: Implement delete API endpoint here
       toast.success("Bank account deleted successfully");
-      // Refresh bank list
       dispatch(getUserBankDetails());
     }
     setShowDeleteConfirm(false);
@@ -240,7 +234,7 @@ const DepositWithdrawal = () => {
   };
 
   const handleSetDefaultBank = (id) => {
-    // Note: You need to implement set default bank API endpoint
+    // Note: Implement set default bank API endpoint here
     toast.error("Set default bank functionality not implemented yet");
   };
 
@@ -262,7 +256,6 @@ const DepositWithdrawal = () => {
       return;
     }
 
-    // Calculate bonus (10% of deposit)
     const bonus = Math.floor(amount * 0.1);
 
     const depositData = {
@@ -306,7 +299,6 @@ const DepositWithdrawal = () => {
       if (res.payload?.status) {
         toast.success(res.payload.message || "Redirecting to payment...");
   
-       
         setTimeout(() => {
           window.location.href = res.payload.data.url;
         }, 800);
@@ -321,9 +313,12 @@ const DepositWithdrawal = () => {
       setDepositLoading(false); 
       setShowDepositConfirm(false);
       setPendingDeposit(null);
+      setDepositAmount("");
+      
+      // Refresh deposit history after successful deposit
+      dispatch(getRechargeHistory({ page: 1, limit: 10 }));
     }
   };
-  
 
   const handleWithdraw = () => {
     const amount = Number(withdrawAmount);
@@ -358,6 +353,9 @@ const DepositWithdrawal = () => {
     if (pendingWithdraw) {
       dispatch(requestWithdrawal(pendingWithdraw));
       setWithdrawAmount("");
+      
+      // Refresh withdrawal history after successful withdrawal request
+      dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
     }
     setShowWithdrawConfirm(false);
     setPendingWithdraw(null);
@@ -365,14 +363,27 @@ const DepositWithdrawal = () => {
 
   const handleLoadMoreHistory = () => {
     const nextPage = currentPage + 1;
-    dispatch(getWithdrawalHistory({ page: nextPage, limit: 10 }));
-    dispatch(getRechargeHistory({ page: nextPage, limit: 10 }));
+    if (activeTab === "deposit") {
+      dispatch(getRechargeHistory({ page: nextPage, limit: 10 }));
+    } else {
+      dispatch(getWithdrawalHistory({ page: nextPage, limit: 10 }));
+    }
     setCurrentPage(nextPage);
+  };
+
+  const refreshHistory = () => {
+    setCurrentPage(1);
+    if (activeTab === "deposit") {
+      dispatch(getRechargeHistory({ page: 1, limit: 10 }));
+    } else {
+      dispatch(getWithdrawalHistory({ page: 1, limit: 10 }));
+    }
   };
 
   const renderContent = () => {
     if (showHistory) {
       const historyData = activeTab === "deposit" ? rechargeData : withdrawals;
+      
       const columns = activeTab === "deposit" 
         ? ["No.", "Transaction ID", "Amount", "Bonus", "Status", "Payment Method", "Date", "Reason"]
         : ["No.", "Transaction ID", "Amount", "Status", "Bank Account", "Date", "Reason"];
@@ -389,11 +400,21 @@ const DepositWithdrawal = () => {
               Back to {activeTab === "deposit" ? "Deposit" : "Withdrawal"}
             </button>
             
-            <div className="flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
-              <FaHistory className="text-2xl text-[#52b202]" />
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 text-center sm:text-left">
-                {activeTab === "deposit" ? "Deposit History" : "Withdrawal History"}
-              </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:w-auto gap-4">
+              <div className="flex items-center space-x-2">
+                <FaHistory className="text-2xl text-[#52b202]" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                  {activeTab === "deposit" ? "Deposit History" : "Withdrawal History"}
+                </h2>
+              </div>
+              
+              <button
+                onClick={refreshHistory}
+                disabled={loading}
+                className="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-all text-sm"
+              >
+                Refresh
+              </button>
             </div>
           </div>
 
@@ -422,13 +443,13 @@ const DepositWithdrawal = () => {
                         >
                           <td className="p-3 sm:p-4 font-medium text-sm sm:text-base">{index + 1}</td>
                           <td className="p-3 sm:p-4 font-mono text-xs sm:text-sm text-gray-600">
-                            {item.transactionId || `WDL${item.id}`}
+                            {item.id_order || `WDL${item.userId}`}
                           </td>
                           <td className="p-3 sm:p-4">
                             <div className="flex items-center">
                               <FaRupeeSign className="mr-1 text-gray-500 text-sm sm:text-base" />
                               <span className="font-bold text-gray-800 text-sm sm:text-base">
-                                ₹{typeof item.amount === 'number' ? item.amount.toLocaleString() : item.displayAmount || '0'}
+                                {typeof item.amount === 'number' ? item.amount.toLocaleString() : item.money || '0'}
                               </span>
                             </div>
                           </td>
@@ -454,16 +475,13 @@ const DepositWithdrawal = () => {
                           {activeTab === "deposit" ? (
                             <td className="p-3 sm:p-4">
                               <span className="px-2 py-1 sm:px-3 sm:py-1 bg-blue-100 text-blue-800 rounded-full text-xs sm:text-sm font-medium">
-                                {item.accountType || 'N/A'}
+                                {item.type || 'N/A'}
                               </span>
                             </td>
                           ) : (
                             <td className="p-3 sm:p-4">
                               <div>
-                                <div className="font-medium text-sm sm:text-base">{item.bankName || 'N/A'}</div>
-                                <div className="text-xs sm:text-sm text-gray-600">
-                                  {item.accountNumber ? `****${item.accountNumber.slice(-4)}` : 'N/A'}
-                                </div>
+                                <div className="font-medium text-sm sm:text-base">{item.accountnumber || 'N/A'}</div>
                               </div>
                             </td>
                           )}
@@ -485,7 +503,7 @@ const DepositWithdrawal = () => {
                 </div>
               </div>
               
-              {activeTab === "withdrawal" && pagination && pagination.currentPage < pagination.totalPages && (
+              {pagination && pagination.currentPage < pagination.totalPages && (
                 <div className="text-center">
                   <button
                     onClick={handleLoadMoreHistory}
@@ -515,10 +533,8 @@ const DepositWithdrawal = () => {
     }
 
     if (activeTab === "deposit") {
-      // Quick deposit amounts
       const quickDepositAmounts = [100, 500, 1000, 5000];
 
-      // Payment methods
       const paymentMethods = [
         { id: "upi", name: "UPI", icon: FaQrcode },
         { id: "card", name: "Credit/Debit Card", icon: FaCreditCard },
@@ -552,7 +568,7 @@ const DepositWithdrawal = () => {
             </h3>
             <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6">Select amount or enter custom amount</p>
             
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               {quickDepositAmounts.map((amount) => (
                 <button
                   key={amount}
@@ -607,7 +623,7 @@ const DepositWithdrawal = () => {
                 />
               </div>
               
-              <div className="mt-3 sm:mt-4 flex items-center justify-between text-xs sm:text-sm">
+              <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm gap-2">
                 <span className="text-gray-500">Minimum: ₹100</span>
                 <span className="text-gray-500">Increments of ₹100</span>
               </div>
@@ -615,7 +631,7 @@ const DepositWithdrawal = () => {
             
             {depositAmount && Number(depositAmount) > 0 && (
               <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <p className="text-gray-600 text-xs sm:text-sm">Deposit Amount</p>
                     <p className="text-lg sm:text-2xl font-bold text-gray-800">
@@ -640,7 +656,7 @@ const DepositWithdrawal = () => {
               Select Payment Method
             </h3>
             
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {paymentMethods.map((method) => {
                 const Icon = method.icon;
                 return (
@@ -682,7 +698,7 @@ const DepositWithdrawal = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
               onClick={handleDeposit}
               disabled={!depositAmount || Number(depositAmount) < 100 || loading}
@@ -706,7 +722,7 @@ const DepositWithdrawal = () => {
             
             <button
               onClick={() => setShowHistory(true)}
-              className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-[#52b202] mb-5 text-[#52b202] font-bold rounded-xl hover:bg-green-50 transition-all flex items-center justify-center"
+              className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-[#52b202] text-[#52b202] font-bold rounded-xl hover:bg-green-50 transition-all flex items-center justify-center"
               disabled={loading}
             >
               <FaHistory className="mr-3" />
@@ -747,7 +763,6 @@ const DepositWithdrawal = () => {
               <p className="text-gray-600 text-sm sm:text-base mt-1">Select bank account for withdrawal</p>
             </div>
             
-            {/* Show Add Bank button ONLY when no bank accounts exist */}
             {(!bankAccounts || bankAccounts.length === 0) && (
               <button
                 onClick={() => setShowAddBankPopup(true)}
@@ -769,10 +784,7 @@ const DepositWithdrawal = () => {
                 return (
                   <div
                     key={accountId}
-                    onClick={() => {
-                      console.log("Selecting bank:", accountId);
-                      setSelectedBank(accountId);
-                    }}
+                    onClick={() => setSelectedBank(accountId)}
                     className={`p-4 sm:p-5 rounded-xl border-2 cursor-pointer transition-all ${
                       isSelected
                         ? "border-red-500 bg-red-50 shadow-md"
@@ -805,26 +817,26 @@ const DepositWithdrawal = () => {
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-4">
                           <div className="flex items-center">
-                            <FaIdCard className="text-gray-400 mr-3 text-sm sm:text-base" />
+                            <FaIdCard className="text-gray-400 mr-3 text-sm sm:text-base flex-shrink-0" />
                             <div className="min-w-0">
                               <p className="text-xs text-gray-500">Account Holder</p>
                               <p className="font-medium text-sm sm:text-base truncate">{account.accountHolderName}</p>
                             </div>
                           </div>
                           <div className="flex items-center">
-                            <FaBarcode className="text-gray-400 mr-3 text-sm sm:text-base" />
+                            <FaBarcode className="text-gray-400 mr-3 text-sm sm:text-base flex-shrink-0" />
                             <div className="min-w-0">
                               <p className="text-xs text-gray-500">IFSC Code</p>
                               <p className="font-mono font-medium text-sm sm:text-base truncate">{account.ifscCode}</p>
                             </div>
                           </div>
                           <div className="flex items-center">
-                            <FaCalendar className="text-gray-400 mr-3 text-sm sm:text-base" />
-                            <div>
+                            <FaCalendar className="text-gray-400 mr-3 text-sm sm:text-base flex-shrink-0" />
+                            <div className="min-w-0">
                               <p className="text-xs text-gray-500">Added On</p>
-                              <p className="font-medium text-sm sm:text-base">
+                              <p className="font-medium text-sm sm:text-base truncate">
                                 {account.createdAt ? new Date(account.createdAt).toLocaleDateString() : 'N/A'}
                               </p>
                             </div>
@@ -901,7 +913,7 @@ const DepositWithdrawal = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             onClick={handleWithdraw}
             disabled={
@@ -948,7 +960,7 @@ const DepositWithdrawal = () => {
         </div>
 
         {/* Important Notes */}
-        <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 sm:p-6 rounded-2xl mb-5 border border-red-200">
+        <div className="bg-gradient-to-r from-red-50 to-pink-50 p-4 sm:p-6 rounded-2xl border border-red-200">
           <h4 className="text-base sm:text-lg font-bold text-red-700 mb-3 sm:mb-4 flex items-center">
             <FaShieldAlt className="mr-3" />
             Important Notes & Guidelines
@@ -974,13 +986,8 @@ const DepositWithdrawal = () => {
     );
   };
 
-
-
-
-  
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4 md:p-6 pb-16">
       <Toaster 
         position="top-right"
         toastOptions={{
@@ -1071,10 +1078,10 @@ const DepositWithdrawal = () => {
                 </button>
                 <button
                   onClick={confirmDeposit}
-                  disabled={loading}
+                  disabled={depositLoading}
                   className="flex-1 py-3 bg-gradient-to-r from-[#52b202] to-[#3d8c00] text-white font-bold rounded-xl hover:from-[#3d8c00] hover:to-[#52b202] shadow-md hover:shadow-lg transition text-sm sm:text-base"
                 >
-                  {loading ? 'Processing...' : 'Confirm Deposit'}
+                  {depositLoading ? 'Processing...' : 'Confirm Deposit'}
                 </button>
               </div>
             </div>
@@ -1341,7 +1348,7 @@ const DepositWithdrawal = () => {
       )}
 
       {/* Header */}
-      <div className=" mx-auto mb-6 sm:mb-8 pb-16  ">
+      <div className="mx-auto mb-6 sm:mb-8">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
             <FaWallet className="inline mr-3 text-[#52b202]" />
@@ -1351,12 +1358,12 @@ const DepositWithdrawal = () => {
         </div>
 
         {/* Main Container */}
-        <div className="bg-white rounded-xl sm:rounded overflow-hidden shadow-sm">
+        <div className="bg-white rounded-xl sm:rounded overflow-hidden  shadow-sm">
           {/* Tab Navigation */}
           <div className="flex">
             <button
               onClick={() => {
-                setActiveTab("deposit");
+                navigate("/wallet/deposit");
                 setShowHistory(false);
                 setDepositAmount("");
               }}
@@ -1378,7 +1385,7 @@ const DepositWithdrawal = () => {
             
             <button
               onClick={() => {
-                setActiveTab("withdrawal");
+                navigate("/wallet/withdrawal");
                 setShowHistory(false);
                 setWithdrawAmount("");
               }}

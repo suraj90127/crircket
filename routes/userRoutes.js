@@ -36,7 +36,7 @@ router.post("/user/withdraw",authMiddleware, userWithdrawal);
 router.get("/user/bank-details", authMiddleware, getUserBankDetails);
 router.get("/user/withdraw-history", authMiddleware, getWithdrawalHistory);
 router.get("/user/withdraw-history/:id", authMiddleware, getWithdrawalById);
-router.post('/zilpay', zilpay);
+router.post('/zilpay',authMiddleware, zilpay);
 router.post('/webapi/zilpayCallback', zilpayCallback);
 router.get("/user/recharge-history", authMiddleware, getRechargeHistory);
 router.get("/get-whatsapp", getWhatsapp);

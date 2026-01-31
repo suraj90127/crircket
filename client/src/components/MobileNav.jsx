@@ -11,8 +11,10 @@ export default function MobileNavigation() {
     { name: "Profile", icon: <FaUserCircle className="h-5 w-5" />, href: "/profile" },
     { name: "In-Play", icon: <FaPlayCircle className="h-5 w-5" />, href: "/in-play" },
     { name: "Home", icon: <IoHome className="h-5 w-5" />, href: "/" },
-    { name: "Deposit", icon: <FaPiggyBank className="h-5 w-5" />, href: "/depositwithdrawal" },
-    { name: "Withdrawal", icon: <FaWallet className="h-5 w-5" />, href: "/depositwithdrawal" },
+    { name: "Deposit", icon: <FaPiggyBank className="h-5 w-5" />, href: "/wallet/deposit" },
+{ name: "Withdrawal", icon: <FaWallet className="h-5 w-5" />, href: "/wallet/withdrawal" },
+
+
   ];
 
   return (

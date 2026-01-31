@@ -347,7 +347,7 @@ export const getUserBankDetails = async (req, res) => {
     const banks = await Bank.find({ userId: id }).sort({ createdAt: -1 });
 
     // 🔍 Log the fetched banks
-    console.log("Fetched Banks for user", id, banks);
+    // console.log("Fetched Banks for user", id, banks);
 
     res.status(200).json({
       success: true,
@@ -469,9 +469,8 @@ export const getWithdrawalById = async (req, res) => {
 
 
 export const zilpay = async (req, res) => {
-  // const {id} = req;
-  const id = "697b0553de892b5d435cd774";
   try {
+    const id = req.user._id.toString(); // 🔥 STRING
 
     const { amount, type } = req.body;
     const money = Number(amount);
@@ -480,57 +479,17 @@ export const zilpay = async (req, res) => {
       return res.status(200).json({
         message: "Minimum recharge 100",
         status: false,
-        // timeStamp: timeNow(),
       });
     }
 
-    // Find user by token
-    const user = await SubAdmin.findById(id);
-    
+    const user = await SubAdmin.findById(req.user._id);
     if (!user) {
       return res.status(200).json({
         message: "User not found",
         status: false,
-        // timeStamp: timeNow(),
       });
     }
 
-    // const checkTime = timerJoin2(Date.now());
-
-    // // Demo user handling
-    // if (user.isdemo === 1) {
-    //   const client_transaction_id = generateOrderId();
-
-    //   // Create demo recharge
-    //   const demoRecharge = new Recharge({
-    //     userId: user.id_user,
-    //     id_order: client_transaction_id,
-    //     transaction_id: "0",
-    //     phone: user.phone,
-    //     money: money,
-    //     type: type,
-    //     status: 1, // Completed
-    //     today: checkTime,
-    //     url: "1",
-    //     time: checkTime,
-    //     isdemo: 1,
-    //     userStatus: 0
-    //   });
-
-    //   await demoRecharge.save();
-
-    //   // Update user balance
-    //   user.money += money;
-    //   await user.save();
-
-    //   return res.status(200).json({
-    //     message: "Demo Amount is added",
-    //     status: false,
-    //     timeStamp: timeNow(),
-    //   });
-    // }
-
-    // Real payment processing
     const params = {
       amount: money,
       auth: "YUTMH4E1YAJQWIA5J92T",
@@ -539,19 +498,21 @@ export const zilpay = async (req, res) => {
       user: user.phone,
     };
 
-    const response = await axios.post("https://api.zilpay.live/api/payin2", params);
-    
+    const response = await axios.post(
+      "https://api.zilpay.live/api/payin2",
+      params
+    );
+
     if (response.data.status === "success") {
-      // Create pending recharge
       const recharge = new Recharge({
-        userId: id,
+        userId: id, // ✅ STRING MATCH
         id_order: response.data.order_id,
         phone: user.phone,
         money: money,
         code: user.code,
-        invite: user.invite, 
+        invite: user.invite,
         type: type,
-        status: "pending", // Pending
+        status: "pending",
       });
 
       await recharge.save();
@@ -561,13 +522,12 @@ export const zilpay = async (req, res) => {
         status: true,
         data: response.data,
       });
-    } else {
-      return res.status(400).json({
-        message: "Payment initiation failed",
-        status: false,
-        timeStamp: timeNow(),
-      });
     }
+
+    return res.status(400).json({
+      message: "Payment initiation failed",
+      status: false,
+    });
   } catch (error) {
     console.error("Zilpay payment error:", error);
     return res.status(500).json({
@@ -577,6 +537,7 @@ export const zilpay = async (req, res) => {
     });
   }
 };
+
 
 export const zilpayCallback = async (req, res) => {
   const { request_user, amount, merchanttransid, status } = req.body;
@@ -709,30 +670,20 @@ export const zilpayCallback = async (req, res) => {
 
 export const getRechargeHistory = async (req, res) => {
   try {
-    const { id } = req ;
-    // const { id } = req ;
-    const { page = 1, limit = 10 } = req.query;
+    const userId = req.user._id.toString(); // 🔥 STRING
 
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const recharge = await Recharge.find({ userId })
+      .sort({ createdAt: -1 });
 
-    const recharge = await Recharge.find({ userId: id })
-      .sort({ createdAt: -1 })
-      .skip((pageNum - 1) * limitNum)
-      .limit(limitNum);
-
-    const total = await Recharge.countDocuments({ userId: id });
-
-    res.status(200).json({
+    res.json({
       success: true,
-      message: "Recharge history fetched successfully",
-      data: recharge,
-      total,
-      totalPages: Math.ceil(total / limitNum),
-      currentPage: pageNum,
+      count: recharge.length,
+      data:recharge,
     });
   } catch (error) {
-    console.error("Get Withdrawal History Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
+
+
+
