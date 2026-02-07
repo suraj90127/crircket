@@ -61,7 +61,7 @@ const Login = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80"
         style={{
           backgroundImage:
-            "url('https://reddy365.vip/static/media/cricket-bg.5f7754fd8ce52985a289.jpg')",
+            "url('https://i.ibb.co/rGyRyRhk/cricket-bg-5f7754fd8ce52985a289.jpg')",
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black" />
