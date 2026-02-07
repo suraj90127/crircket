@@ -91,14 +91,15 @@ function App() {
                   <Route path="/play/:gameId" element={<GamePlayer />} />
 
                   {/* <Route path="/depositwithdrawal" element={<DepositWithdrawal />} /> */}
-                  <Route path="/wallet/:tab" element={<DepositWithdrawal />} />
-                  <Route path="/wallet" element={<Navigate to="/wallet/deposit" replace />} />
+                  
 
 
         
                   
                   {/* ================= PROTECTED ROUTES ================= */}
                   <Route element={<PrivateRoute />}>
+                    <Route path="/wallet/:tab" element={<DepositWithdrawal />} />
+                  <Route path="/wallet" element={<Navigate to="/wallet/deposit" replace />} />
                     <Route path="/horse-racing" element={<Horse />} />
                     <Route path="/greyhound-racing" element={<Grayhound />} />
                     <Route path="/basketball" element={<Basketball />} />
