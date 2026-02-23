@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import Home from "./pages/Home";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
@@ -89,12 +90,16 @@ function App() {
                 
                   <Route path="/play/:gameId" element={<GamePlayer />} />
 
-                  <Route path="/depositwithdrawal" element={<DepositWithdrawal />} />
+                  {/* <Route path="/depositwithdrawal" element={<DepositWithdrawal />} /> */}
+                  
+
 
         
                   
                   {/* ================= PROTECTED ROUTES ================= */}
                   <Route element={<PrivateRoute />}>
+                    <Route path="/wallet/:tab" element={<DepositWithdrawal />} />
+                  <Route path="/wallet" element={<Navigate to="/wallet/deposit" replace />} />
                     <Route path="/horse-racing" element={<Horse />} />
                     <Route path="/greyhound-racing" element={<Grayhound />} />
                     <Route path="/basketball" element={<Basketball />} />

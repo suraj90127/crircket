@@ -2,12 +2,16 @@ import React, { useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // ✅ MISSING IMPORT FIXED
 import { OriginalsGames } from "../Data/GamesData";
+import { useSelector } from "react-redux";
+
 
 const GameSlider = () => {
   const scrollRef = useRef(null);
   const navigate = useNavigate(); // ✅ works now
 
   const [activeTab, setActiveTab] = useState("Originals");
+  const { userInfo, loading } = useSelector((state) => state.auth);
+
 
   const tabs = ["Originals", "Crash Games", "Live Roulette", "MAC88"];
 
@@ -55,7 +59,16 @@ const GameSlider = () => {
   // 🔹 GAME PLAY NAVIGATION (API SAFE)
   const handlePlayGame = (game) => {
     if (!game) return;
-
+  
+    // ❌ Not logged in → login page
+    if (!userInfo) {
+      navigate("/login", {
+        state: { redirectTo: window.location.pathname },
+      });
+      return;
+    }
+  
+    // ✅ Logged in → play game
     navigate(`/play/${game.game_uid || game.id}`, {
       state: {
         gameUrl: game.game_url,
@@ -64,6 +77,7 @@ const GameSlider = () => {
       },
     });
   };
+  
 
   return (
     <div className="mb-2 p-1">

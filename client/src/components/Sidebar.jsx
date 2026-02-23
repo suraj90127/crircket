@@ -64,10 +64,10 @@ const AllSportsList = [
 
 
 
-  { name: "WhatsApp", link: "https://wa.me/", icon: FaWhatsapp, hasArrow: false, color: "text-green-600", external: true },
-  { name: "Instagram", link: "https://instagram.com/", icon: FaInstagram, hasArrow: false, color: "text-pink-600", external: true },
-  { name: "Telegram", link: "https://t.me/", icon: FaTelegram, hasArrow: false, color: "text-blue-500", external: true },
-  { name: "Chat With us", link: "/support", icon: IoMdChatbubbles, hasArrow: false, badge: "Live" },
+  // { name: "WhatsApp", link: "https://wa.me/", icon: FaWhatsapp, hasArrow: false, color: "text-green-600", external: true },
+  // { name: "Instagram", link: "https://instagram.com/", icon: FaInstagram, hasArrow: false, color: "text-pink-600", external: true },
+  // { name: "Telegram", link: "https://t.me/", icon: FaTelegram, hasArrow: false, color: "text-blue-500", external: true },
+  // { name: "Chat With us", link: "/support", icon: IoMdChatbubbles, hasArrow: false, badge: "Live" },
 
 
   
@@ -257,7 +257,7 @@ const Sidebar = ({ activeNavItem }) => {
         {userInfo && (
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             <div className="text-xs text-slate-600">
-              <p className="font-semibold">Account ID: <span className="text-black">{userInfo?.userId || "N/A"}</span></p>
+              <p className="font-semibold">Account ID: <span className="text-black">{userInfo?.userName || "N/A"}</span></p>
               <p className="mt-1">Balance: <span className="text-green-600 font-bold">₹{userInfo?.avbalance?.toFixed(2) || "0.00"}</span></p>
               <p className="text-red-500 text-[10px]">Exposure: ₹{userInfo?.exposure?.toFixed(2) || "0.00"}</p>
             </div>
