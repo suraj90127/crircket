@@ -3,11 +3,11 @@ import SubAdmin from "../models/subAdminModel.js";
 import axios from "axios";
 import TransactionHistory from "../models/transtionHistoryModel.js";
 import betHistoryModel from "../models/betHistoryModel.js";
-// import { log } from "console"
 
 
 export const placeBet = async (req, res) => {
   const { id } = req;
+// console.log("req.body",req.body);
 
   try {
     const {
@@ -43,6 +43,8 @@ export const placeBet = async (req, res) => {
 
     // 1. Check uniqueness: existing bet with same gameId, eventName, marketName, userId, and status 0
     const uniqueKey = { gameId, eventName, marketName, };
+    // console.log("resultRoutes",uniqueKey);
+    
     const existingExact = await betModel.findOne(uniqueKey);
 
     let market_id
@@ -53,7 +55,7 @@ export const placeBet = async (req, res) => {
 
 
 
-    // Only call the external API if there's no existing bet
+    // // Only call the external API if there's no existing bet
     if (!existingExact) {
       market_id = Math.floor(10000000 + Math.random() * 90000000);
 
@@ -61,19 +63,20 @@ export const placeBet = async (req, res) => {
       try {
         const response = await axios.post(
           // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
-          `http://130.250.191.174:3009/placed_bets?key=uniique5557878&sid=${sid}`,
-          // `https://aura444.org/api/user/place-bet?key=uniique5557878&sid=${sid}`,
+          `https://demo9.etsblokchain.live/api/placed_bets?key=qTXm4DnpKs5PsVOeuhVH`,
           {
+            gameId:gameId,
             event_id: gameId,
             event_name: eventName,
             market_id: market_id,
+            gameName: gameName, 
             market_name: marketName,
             market_type: gameType
           },
           {
             headers: {
               'Content-Type': 'application/json',
-              'key': 'uniique5557878'
+              'key': 'qTXm4DnpKs5PsVOeuhVH'
             },
             withCredentials: true     // ensures cookies are sent
           }
@@ -105,25 +108,25 @@ export const placeBet = async (req, res) => {
       case "OVER_UNDER_05":
       case "OVER_UNDER_15":
       case "OVER_UNDER_25":
-        // betAmount = otype === "lay" ? p : p * (x - 1);
-        // p = otype === "lay" ? p * (x - 1) : p;
-           if (otype === "lay") {
-      p = p * (x - 1); // Liability (what user risks if bet loses)
-    } else { // back bet
-       p = p * (x - 1); // Potential winnings (what user wins if bet wins)
-    }
+        betAmount = otype === "lay" ? p : p * (x - 1);
+        p = otype === "lay" ? p * (x - 1) : p;
+    //  if (otype === "lay") {
+    //   p = p * (x - 1); // Liability (what user risks if bet loses)
+    // } else { // back bet
+    //    p = p * (x - 1); // Potential winnings (what user wins if bet wins)
+    // }
         break;
       case "Bookmaker":
       case "Bookmaker IPL CUP":
-        // betAmount = otype === "lay" ? p : p * (x / 100);
-        // p = otype === "lay" ? p * (x / 100) : p;
-        // break;
-           if (otype === "lay") {
+        betAmount = otype === "lay" ? p : p * (x / 100);
+        p = otype === "lay" ? p * (x / 100) : p;
+        break;
+          //  if (otype === "lay") {
       // p = p * (x - 1); // Liability (what user risks if bet loses)
-          p = p * (x / 100); // Liability for bookmaker lay bets
-    } else { // back bet
-      p = p * (x / 100); // Potential winnings
-    }
+          // p = p * (x / 100); // Liability for bookmaker lay bets
+    // } else { // back bet
+      // p = p * (x / 100); // Potential winnings
+    // }
       case "Toss":
       case "1st 6 over":
         betAmount = p;
@@ -299,8 +302,8 @@ export const placeBet = async (req, res) => {
   }
 }
 
-
 export const placeFancyBet = async (req, res) => {
+      console.log("placeFancyBet called with body:",req.body);
   const { id } = req;
 
   try {
@@ -317,10 +320,6 @@ export const placeFancyBet = async (req, res) => {
       teamName,
       otype,
     } = req.body;
-
-
-
-
 
 
     // Validate required fields
@@ -361,8 +360,9 @@ export const placeFancyBet = async (req, res) => {
       try {
         const response = await axios.post(
           // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
-          `http://130.250.191.174:3009/placed_bets?key=uniique5557878&sid=${sid}`,
+        `https://demo9.etsblokchain.live/api/placed_fancy_bets?key=qTXm4DnpKs5PsVOeuhVH`,
           {
+            gameId:gameId,
             event_id: gameId,
             event_name: eventName,
             market_id: market_id,
@@ -372,16 +372,15 @@ export const placeFancyBet = async (req, res) => {
           {
             headers: {
               'Content-Type': 'application/json',
-              'key': 'uniique5557878'
+              'key': 'qTXm4DnpKs5PsVOeuhVH'
             },
             withCredentials: true     // ensures cookies are sent
           }
         );
 
-        // console.log("response", response)
+        console.log("response",response);
+        
 
-        // console.log("response", response);
-        // market_id = response.data.market_id;
       } catch (err) {
         console.error("Error fetching market_id:", err);
         return res.status(502).json({
@@ -392,6 +391,7 @@ export const placeFancyBet = async (req, res) => {
     }
 
 
+// if (!winner) continue;
 
 
 
@@ -546,43 +546,34 @@ export const updateResultOfBets = async (req, res) => {
         continue;
       }
 
-
-      // console.log("bets", bets)
-
-
       const groupedBets = bets.reduce((acc, bet) => {
         if (!acc[bet.gameId]) acc[bet.gameId] = [];
         acc[bet.gameId].push(bet);
         return acc;
       }, {});
 
-      // console.log("groupedBets", groupedBets)
-
-
       for (const gameId of Object.keys(groupedBets)) {
         try {
 
-
-
-          for (const bet of groupedBets[gameId]) {
-
-
+          for (const bet of groupedBets[gameId]) { 
 
             const user = await SubAdmin.findById(bet.userId);
+            
             if (!user) {
               // console.warn(`User not found for userId ${bet.userId}`);
               continue;
             }
-
-
             // try {
             const sid = bet.sid;  // ✅ ensure this is defined
 
+            // console.log("s",sid);
+            
+
             const response = await axios.post(
-              // `https://api.cricketid.xyz/get-result?key=uniique5557878&sid=${sid}`,
-              `http://130.250.191.174:3009/get-result?key=uniique5557878&sid=${sid}`,
+               "https://demo9.etsblokchain.live/api/get-result?key=qTXm4DnpKs5PsVOeuhVH",
               {
-                event_id: Number(bet.gameId),
+                // event_id: Number(bet.gameId),
+                gameId: bet.gameId,
                 event_name: bet.eventName,
                 market_id: bet.market_id,
                 market_name: bet.marketName,
@@ -590,7 +581,7 @@ export const updateResultOfBets = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uniique5557878'
+                  'key': 'qTXm4DnpKs5PsVOeuhVH'
                 },
                 withCredentials: true
               }
@@ -600,14 +591,19 @@ export const updateResultOfBets = async (req, res) => {
             if (!resultData) {
               continue
             }
+
+            if (resultData.status===0) {
+              continue
+            }
+            
+
             const winner = resultData.final_result?.trim();
 
-
-
             const betTeam = bet.teamName?.trim();
+
             let winAmount = 0;
             const win = winner && betTeam && winner.toLowerCase() === betTeam.toLowerCase();
-            // console.log("win", win)
+            console.log("win", win)
 
 
 
@@ -730,6 +726,8 @@ export const updateResultOfBets = async (req, res) => {
     }
   }
 };
+
+
 export const updateResultOfBetsHistory = async (req, res) => {
   const betTypes = [
     { gameType: "Toss", marketName: "Toss" },
@@ -765,7 +763,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
 
 
           for (const bet of groupedBets[gameId]) {
-              console.log(`Before: betId=${bet._id}, status=${bet.status}, gameType=${bet.gameType}, team=${bet.teamName}`);
+              // console.log(`Before: betId=${bet._id}, status=${bet.status}, gameType=${bet.gameType}, team=${bet.teamName}`);
             const user = await SubAdmin.findById(bet.userId);
             if (!user) {
               // console.warn(`User not found for userId ${bet.userId}`);
@@ -776,9 +774,10 @@ export const updateResultOfBetsHistory = async (req, res) => {
             const sid = bet.sid;  // ✅ ensure this is defined
 
             const response = await axios.post(
-              `https://api.cricketid.xyz/get-result?key=uniique5557878&sid=${sid}`,
+              "https://demo9.etsblokchain.live/api/get-result?key=qTXm4DnpKs5PsVOeuhVH",
               {
-                event_id: Number(bet.gameId),
+              // event_id: Number(bet.gameId),
+                gameId: bet.gameId,
                 event_name: bet.eventName,
                 market_id: bet.market_id,
                 market_name: bet.marketName,
@@ -786,7 +785,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uniique5557878'
+                  'key': 'qTXm4DnpKs5PsVOeuhVH'
                 },
                 withCredentials: true
               }
@@ -798,6 +797,14 @@ export const updateResultOfBetsHistory = async (req, res) => {
             if (!resultData) {
               continue
             }
+
+
+              if (resultData.status===0) {
+              continue
+            }
+            
+
+
             const winner = resultData.final_result?.trim();
 
 
@@ -913,7 +920,10 @@ export const updateResultOfBetsHistory = async (req, res) => {
     }
   }
 };
+
 export const updateFancyBetResult = async (req, res) => {
+  // console.log("efwhhgryegyuyuyuyurtyryyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+  
   try {
     const betTypes = [
       { gameType: "Normal", marketName: "Toss" },
@@ -944,24 +954,15 @@ export const updateFancyBetResult = async (req, res) => {
       for (const gameId of Object.keys(groupedBets)) {
         try {
 
-
-
-          // console.log("groupedBets[gameId]", groupedBets[gameId])
-
-
-
           for (const bet of groupedBets[gameId]) {
-
-            // console.log("bets", bet)
-
-
 
             const sid = bet.sid;  // ✅ ensure this is defined
 
             const response = await axios.post(
-              `https://api.cricketid.xyz/get-result?key=uniique5557878&sid=${sid}`,
+              "https://demo9.etsblokchain.live/api/get-fancy-result?key=qTXm4DnpKs5PsVOeuhVH",
               {
-                event_id: Number(bet.gameId),
+                // event_id: Number(bet.gameId),
+                gameId: bet.gameId,
                 event_name: bet.eventName,
                 market_id: bet.market_id,
                 market_name: bet.marketName,
@@ -969,24 +970,30 @@ export const updateFancyBetResult = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uniique5557878'
+                  'key': 'qTXm4DnpKs5PsVOeuhVH'
                 },
                 withCredentials: true
               }
             );
 
+            // console.log("response",response);
 
             const resultData = response.data;
+               console.log("resultData", resultData)
             if (!resultData) {
+              // return res.status(404).json({ message: "Result data not found for gameId " + gameId });
               continue
             }
 
+            if (resultData.status===0) {
+              // return res.status(404).json({ message: "Result data not found for gameId " + gameId });
+              continue
+            }
 
-            console.log("resultData", resultData)
-
-
-            const fancyScore = bet.fancyScore;
-            const score = resultData.final_result;
+            const fancyScore = Number(bet.fancyScore);
+            const score = Number(resultData.final_result);
+            console.log("fancyScore", fancyScore, "score", score);
+            
 
             const win = score && fancyScore && fancyScore >= score;
             console.log("winnn", win)
@@ -995,23 +1002,13 @@ export const updateFancyBetResult = async (req, res) => {
             const betTeam = bet.teamName?.trim();
             let winAmount = 0;
 
-
-            // console.log("result responce", response)
-
-
-
             const user = await SubAdmin.findById(bet.userId);
 
             if (!user) {
               // console.warn(`User not found for userId ${bet.userId}`);
               continue;
             }
-
-
-
-
-
-            // Process bet based on otype
+          // Process bet based on otype
             if (bet.otype === "back") {
               if (win) {
                 winAmount = bet.betAmount + bet.price;
@@ -1079,6 +1076,7 @@ export const updateFancyBetResult = async (req, res) => {
     throw error; // Let the cron job handle the error
   }
 };
+
 export const updateFancyBetHistory = async (req, res) => {
   try {
     const betTypes = [
@@ -1118,10 +1116,11 @@ export const updateFancyBetHistory = async (req, res) => {
 
             const sid = bet.sid;  // ✅ ensure this is defined
 
-            const response = await axios.post(
-              `https://api.cricketid.xyz/get-result?key=uniique5557878&sid=${sid}`,
+           const response = await axios.post(
+              "https://demo9.etsblokchain.live/api/get-fancy-result?key=qTXm4DnpKs5PsVOeuhVH",
               {
-                event_id: Number(bet.gameId),
+                // event_id: Number(bet.gameId),
+                gameId: bet.gameId,
                 event_name: bet.eventName,
                 market_id: bet.market_id,
                 market_name: bet.marketName,
@@ -1129,7 +1128,7 @@ export const updateFancyBetHistory = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uniique5557878'
+                  'key': 'qTXm4DnpKs5PsVOeuhVH'
                 },
                 withCredentials: true
               }
@@ -1142,10 +1141,19 @@ export const updateFancyBetHistory = async (req, res) => {
             }
 
 
-            console.log("resultData", resultData)
+            // console.log("resultData", resultData)
 
+              if (!resultData) {
+              // return res.status(404).json({ message: "Result data not found for gameId " + gameId });
+              continue
+            }
 
-            const fancyScore = bet.fancyScore;
+            if (resultData.status===0) {
+              // return res.status(404).json({ message: "Result data not found for gameId " + gameId });
+              continue
+            }
+
+            const fancyScore = Number(bet.fancyScore);
             const score = resultData.final_result;
 
             const win = score && fancyScore && fancyScore >= score;

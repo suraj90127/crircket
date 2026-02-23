@@ -71,6 +71,9 @@ const betHistorySchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+         market_id: {
+            type: Number,
+            },
         date: {
             type: Date,
             default: Date.now,

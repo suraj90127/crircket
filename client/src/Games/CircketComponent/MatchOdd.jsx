@@ -82,10 +82,10 @@ const MatchOdd = ({ matchOddsList, gameid, match }) => {
     console.log("maxAmo", maxAmo);
     console.log("betAmount", betAmount);
 
-    if (betAmount > maxAmo) {
-      toast.error(`Bet amount cannot exceed ${maxAmo}`);
-      return;
-    }
+    // if (betAmount > maxAmo) {
+    //   toast.error(`Bet amount cannot exceed ${maxAmo}`);
+    //   return;
+    // }
     const updatedFormData = {
       ...formData,
       price: betAmount,
@@ -182,7 +182,7 @@ const MatchOdd = ({ matchOddsList, gameid, match }) => {
 
     const isMatchedTeam = teamName?.toLowerCase() === team?.toLowerCase();
 
-    // console.log("isMatchedTeam", isMatchedTeam)
+    console.log("isMatchedTeam", isMatchedTeam)
 
 
     const existingBet = (otype && totalBetAmount || totalPrice && teamName && isMatchedTeam ? true : false);
@@ -202,10 +202,12 @@ const MatchOdd = ({ matchOddsList, gameid, match }) => {
 
 
     const displayValue = (() => {
+      console.log("otype",otype);
+      
       if (otype === "lay") {
         return isMatchedTeam ? totalPrice : totalBetAmount;
       } else if (otype === "back") {
-        return isMatchedTeam ? totalBetAmount : totalPrice;
+        return isMatchedTeam ?   totalBetAmount :totalPrice;
       } else {
         return isMatchedTeam ? totalPrice : totalBetAmount;
       }

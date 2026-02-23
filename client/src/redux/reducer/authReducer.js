@@ -92,7 +92,7 @@ export const passwordHistory = createAsyncThunk(
 export const getLoginHistory = createAsyncThunk(
   "creditRef/getUserLoginHistory",
   async (userId, { rejectWithValue }) => {
-    console.log("object", userId);
+    // console.log("object", userId);
     try {
       const res = await api.get(`/get/user-login-history/${userId}`, {
         withCredentials: true,
@@ -118,7 +118,7 @@ const decodeToken = (token) => {
 // Initial state
 const initialState = {
   user: null,
-  userInfo: decodeToken(localStorage.getItem("auth  ")) || null,
+  userInfo: decodeToken(localStorage.getItem("auth")) || null,
   loading: false,
   error: null,
   LoginData: [],

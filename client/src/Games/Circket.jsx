@@ -21,12 +21,15 @@ const Cricket = () => {
   const gameOnOff = userInfo?.gamelock?.[0]?.lock;
   const { matches, loader, error } = useSelector((state) => state.cricket);
 
+  // console.log("/cricket", matches);
+  
+
   useEffect(() => {
     dispatch(fetchCricketData());
   }, [dispatch]);
 
   const handleClick = (bet, match) => {
-    // console.log("iii", match);
+    console.log("iii", match);
     if (bet) {
       navigate(`/cricket-bet/${match}/${bet.id}`);
     } else {

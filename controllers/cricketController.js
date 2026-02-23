@@ -1,6 +1,8 @@
 import axios from "axios";
 import adminModel from "../models/adminModel.js";
 
+const OPENAI_API_KEY = "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"
+
 // export const getCricketData = async (req, res) => {
 //   try {
 //     const response = await axios.get(
@@ -191,3 +193,47 @@ export const fetchCrirketBettingData = async (req, res) => {
   }
 };
 
+//  const gptdagta = async (req, res) => {
+//   try {
+
+//     const matchName = "Sri Lanka v Zimbabwe";
+// const matchDate = "2024-06-25T14:00:00Z";
+
+
+// const prompt = `
+// You are a professional cricket live match assistant.
+
+// Your task:
+// Input Data:
+// Match Name: "ICC Men's T20 World Cup 2026 ,Pakistan vs Namibia"
+// `;
+
+
+// const gptRes = await axios.post(
+//   "https://api.openai.com/v1/chat/completions",
+//   {
+//     model: "gpt-4o-mini",
+//     messages: [
+//       { role: "user", content: prompt }
+//     ]
+//   },
+//   {
+//     headers: {
+//       Authorization: `Bearer ${OPENAI_API_KEY}`,
+//       "Content-Type": "application/json"
+//     }
+//   }
+// );
+
+// console.log("gptRes",gptRes.data.choices[0].message.content);
+    
+//   } catch (error) {
+//     console.error("Error in gptdagta:", error.message);
+//     return ({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
+
+// gptdagta()

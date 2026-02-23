@@ -67,6 +67,8 @@ export default function Cricketbet() {
   const [selectedRun, setSelectedRun] = useState({ type: null, index: null });
   // ✅ WebSocket Setup (Real-time updates)
   const [bettingData, setBettingData] = useState(null);
+  // console.log("bettingData", bettingData);
+  
   const [betOdds, setBetOdds] = useState(null);
   const [betAmount, setBetAmount] = useState(0);
   const [loader, setLoader] = useState(false);
@@ -75,7 +77,7 @@ export default function Cricketbet() {
     (state) => state.bet
   );
   const { battingData } = useSelector((state) => state.cricket);
-  // console.log("battingData2 22222222222", battingData);
+  console.log("battingData2 22222222222", battingData);
 
   const { userInfo } = useSelector((state) => state.auth);
   const { pendingBet } = useSelector((state) => state.bet);
@@ -214,10 +216,10 @@ export default function Cricketbet() {
   const placeBet = async (gameType, marketName, maxAmo) => {
     // console.log("maxAmo", maxAmo);
 
-    if (betAmount > maxAmo) {
-      toast.error(`Bet amount cannot exceed ${maxAmo}`);
-      return;
-    }
+    // if (betAmount > maxAmo) {
+    //   toast.error(`Bet amount cannot exceed ${maxAmo}`);
+    //   return;
+    // }
     const updatedFormData = {
       ...formData,
       price: betAmount,
