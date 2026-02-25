@@ -63,7 +63,7 @@ export const placeBet = async (req, res) => {
       try {
         const response = await axios.post(
           // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
-          `https://api.zapcore.live/api/placed_bets?key=97GN6tajWdG6ZviylJfB`,
+          `https://api.zapcore.live/api/placed_bets?key=uh5MGUyrh1AfZF6SDvRk`,
           {
             gameId:gameId,
             event_id: gameId,
@@ -76,7 +76,7 @@ export const placeBet = async (req, res) => {
           {
             headers: {
               'Content-Type': 'application/json',
-              'key': '97GN6tajWdG6ZviylJfB'
+              'key': 'uh5MGUyrh1AfZF6SDvRk'
             },
             withCredentials: true     // ensures cookies are sent
           }
@@ -369,7 +369,7 @@ export const placeFancyBet = async (req, res) => {
       try {
         const response = await axios.post(
           // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
-        `https://api.zapcore.live/api/placed_fancy_bets?key=97GN6tajWdG6ZviylJfB`,
+        `https://api.zapcore.live/api/placed_fancy_bets?key=uh5MGUyrh1AfZF6SDvRk`,
           {
             gameId:gameId,
             event_id: gameId,
@@ -381,7 +381,7 @@ export const placeFancyBet = async (req, res) => {
           {
             headers: {
               'Content-Type': 'application/json',
-              'key': '97GN6tajWdG6ZviylJfB'
+              'key': 'uh5MGUyrh1AfZF6SDvRk'
             },
             withCredentials: true     // ensures cookies are sent
           }
@@ -579,7 +579,7 @@ export const updateResultOfBets = async (req, res) => {
             
 
             const response = await axios.post(
-               "https://api.zapcore.live/api/get-result?key=97GN6tajWdG6ZviylJfB",
+               "https://api.zapcore.live/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
                 // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
@@ -590,7 +590,7 @@ export const updateResultOfBets = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': '97GN6tajWdG6ZviylJfB'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk'
                 },
                 withCredentials: true
               }
@@ -783,7 +783,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
             const sid = bet.sid;  // ✅ ensure this is defined
 
             const response = await axios.post(
-              "https://api.zapcore.live/api/get-result?key=97GN6tajWdG6ZviylJfB",
+              "https://api.zapcore.live/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
               // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
@@ -794,7 +794,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': '97GN6tajWdG6ZviylJfB'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk'
                 },
                 withCredentials: true
               }
@@ -968,7 +968,7 @@ export const updateFancyBetResult = async (req, res) => {
             const sid = bet.sid;  // ✅ ensure this is defined
 
             const response = await axios.post(
-              "https://api.zapcore.live/api/get-fancy-result?key=97GN6tajWdG6ZviylJfB",
+              "https://api.zapcore.live/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
                 // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
@@ -979,7 +979,7 @@ export const updateFancyBetResult = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': '97GN6tajWdG6ZviylJfB'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk'
                 },
                 withCredentials: true
               }
@@ -1126,7 +1126,7 @@ export const updateFancyBetHistory = async (req, res) => {
             const sid = bet.sid;  // ✅ ensure this is defined
 
            const response = await axios.post(
-              "https://api.zapcore.live/api/get-fancy-result?key=97GN6tajWdG6ZviylJfB",
+              "https://api.zapcore.live/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
                 // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
@@ -1137,7 +1137,7 @@ export const updateFancyBetHistory = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': '97GN6tajWdG6ZviylJfB'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk'
                 },
                 withCredentials: true
               }
