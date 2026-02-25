@@ -87,10 +87,19 @@ export const placeBet = async (req, res) => {
         // console.log("response", response);
         // market_id = response.data.market_id;
       } catch (err) {
-        console.error("Error fetching market_id:", err);
-        return res.status(502).json({
-          message: "Could not fetch external market_id",
-          error: err.message
+        console.error("Error fetching market_id:", err.response?.data || err.message);
+
+        if (err.response) {
+          return res.status(err.response.status).json({
+            success: false,
+            externalError: true,
+            data: err.response.data   // 👈 ORIGINAL RESPONSE FORWARD
+          });
+        }
+
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error",
         });
       }
     }
