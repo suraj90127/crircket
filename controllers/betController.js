@@ -75,7 +75,7 @@ export const placeBet = async (req, res) => {
               headers: {
                 'Content-Type': 'application/json',
                 'key': 'uh5MGUyrh1AfZF6SDvRk',
-                'x-domain': req.headers["x-domain"] || ""
+                "x-domain": window.location.hostname || req.headers["x-domain"] || ""
               }
             }
           );
@@ -375,7 +375,7 @@ export const placeFancyBet = async (req, res) => {
             headers: {
               'Content-Type': 'application/json',
               'key': 'uh5MGUyrh1AfZF6SDvRk',
-              'x-domain': req.headers["x-domain"] || ""
+              "x-domain": window.location.hostname || req.headers["x-domain"] || ""
             },
             withCredentials: true     // ensures cookies are sent
           }
@@ -585,7 +585,7 @@ export const updateResultOfBets = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  'x-domain': req.headers["x-domain"] || ""
+                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
@@ -790,7 +790,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  'x-domain': req.headers["x-domain"] || ""
+                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
@@ -976,7 +976,7 @@ export const updateFancyBetResult = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  'x-domain': req.headers["x-domain"] || ""
+                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
@@ -1135,7 +1135,7 @@ export const updateFancyBetHistory = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  'x-domain': req.headers["x-domain"] || ""
+                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
