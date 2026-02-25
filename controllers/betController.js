@@ -950,7 +950,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
 };
 
 export const updateFancyBetResult = async (req, res) => {
-  // console.log("efwhhgryegyuyuyuyurtyryyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+  console.log("efwhhgryegyuyuyuyurtyryyyyyyyyyyyyyyyyyyyyyyyyyyyy");
   
   try {
     const betTypes = [
@@ -1009,7 +1009,7 @@ export const updateFancyBetResult = async (req, res) => {
               }
             );
 
-            // console.log("response",response);
+            console.log("response",response);
 
             const resultData = response.data;
                console.log("resultData", resultData)
