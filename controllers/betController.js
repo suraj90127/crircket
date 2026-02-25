@@ -47,7 +47,7 @@ export const placeBet = async (req, res) => {
     
     const existingExact = await betModel.findOne(uniqueKey);
 
-    let market_id
+    let market_id;
 
     if (existingExact) {
       market_id = existingExact.market_id;
@@ -56,54 +56,47 @@ export const placeBet = async (req, res) => {
 
 
     // // Only call the external API if there's no existing bet
-    if (!existingExact) {
-      market_id = Math.floor(10000000 + Math.random() * 90000000);
+      if (!existingExact) {
+        market_id = Math.floor(10000000 + Math.random() * 90000000);
 
-
-      try {
-        const response = await axios.post(
-          // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
-          `https://api.zapcore.live/api/placed_bets?key=uh5MGUyrh1AfZF6SDvRk`,
-          {
-            gameId:gameId,
-            event_id: gameId,
-            event_name: eventName,
-            market_id: market_id,
-            gameName: gameName, 
-            market_name: marketName,
-            market_type: gameType
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'key': 'uh5MGUyrh1AfZF6SDvRk'
+        try {
+          const response = await axios.post(
+            `https://api.zapcore.live/api/placed_bets?key=uh5MGUyrh1AfZF6SDvRk`,
+            {
+              gameId: gameId,
+              event_id: gameId,
+              event_name: eventName,
+              market_id: market_id,
+              gameName: gameName,
+              market_name: marketName,
+              market_type: gameType
             },
-            withCredentials: true     // ensures cookies are sent
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'key': 'uh5MGUyrh1AfZF6SDvRk',
+                'x-domain': req.headers["x-domain"] || ""
+              }
+            }
+          );
+
+        } catch (err) {
+          console.error("Error fetching market_id:", err.response?.data || err.message);
+
+          if (err.response) {
+            return res.status(err.response.status).json({
+              success: false,
+              externalError: true,
+              data: err.response.data
+            });
           }
-        );
 
-        // console.log("response", response)
-
-        // console.log("response", response);
-        // market_id = response.data.market_id;
-      } catch (err) {
-        console.error("Error fetching market_id:", err.response?.data || err.message);
-
-        if (err.response) {
-          return res.status(err.response.status).json({
+          return res.status(500).json({
             success: false,
-            externalError: true,
-            data: err.response.data   // 👈 ORIGINAL RESPONSE FORWARD
+            message: "Internal server error"
           });
         }
-
-        return res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
       }
-    }
-
 
     let p = parseFloat(price);
     let x = parseFloat(xValue).toFixed(2);
@@ -381,7 +374,8 @@ export const placeFancyBet = async (req, res) => {
           {
             headers: {
               'Content-Type': 'application/json',
-              'key': 'uh5MGUyrh1AfZF6SDvRk'
+              'key': 'uh5MGUyrh1AfZF6SDvRk',
+              'x-domain': req.headers["x-domain"] || ""
             },
             withCredentials: true     // ensures cookies are sent
           }
@@ -590,7 +584,8 @@ export const updateResultOfBets = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uh5MGUyrh1AfZF6SDvRk'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk',
+                  'x-domain': req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
@@ -794,7 +789,8 @@ export const updateResultOfBetsHistory = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uh5MGUyrh1AfZF6SDvRk'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk',
+                  'x-domain': req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
@@ -979,7 +975,8 @@ export const updateFancyBetResult = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uh5MGUyrh1AfZF6SDvRk'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk',
+                  'x-domain': req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
@@ -1137,7 +1134,8 @@ export const updateFancyBetHistory = async (req, res) => {
               {
                 headers: {
                   'Content-Type': 'application/json',
-                  'key': 'uh5MGUyrh1AfZF6SDvRk'
+                  'key': 'uh5MGUyrh1AfZF6SDvRk',
+                  'x-domain': req.headers["x-domain"] || ""
                 },
                 withCredentials: true
               }
