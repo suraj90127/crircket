@@ -5,6 +5,7 @@ import TransactionHistory from "../models/transtionHistoryModel.js";
 import betHistoryModel from "../models/betHistoryModel.js";
 
 
+
 export const placeBet = async (req, res) => {
   const { id } = req;
 // console.log("req.body",req.body);
@@ -53,13 +54,6 @@ export const placeBet = async (req, res) => {
       market_id = existingExact.market_id;
     }
 
-    const domain =
-     req.headers.origin
-    ? new URL(req.headers.origin).hostname
-    : req.headers.host;
-
-
-
     // // Only call the external API if there's no existing bet
       if (!existingExact) {
         market_id = Math.floor(10000000 + Math.random() * 90000000);
@@ -80,7 +74,7 @@ export const placeBet = async (req, res) => {
               headers: {
                 'Content-Type': 'application/json',
                 'key': 'uh5MGUyrh1AfZF6SDvRk',
-                "x-domain": domain || ""
+                 "x-domain": "www.reddy111.bet" || ""
 
               }
             }
@@ -364,13 +358,6 @@ export const placeFancyBet = async (req, res) => {
     if (!existingExact) {
       market_id = Math.floor(10000000 + Math.random() * 90000000);
 
-          const domain =
-          req.headers.origin
-          ? new URL(req.headers.origin).hostname
-          : req.headers.host;
-
-
-
       try {
         const response = await axios.post(
           // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
@@ -387,7 +374,7 @@ export const placeFancyBet = async (req, res) => {
             headers: {
               'Content-Type': 'application/json',
               'key': 'uh5MGUyrh1AfZF6SDvRk',
-              "x-domain": domain || ""
+               "x-domain": "www.reddy111.bet" || ""
             },
             withCredentials: true     // ensures cookies are sent
           }
@@ -583,12 +570,6 @@ export const updateResultOfBets = async (req, res) => {
 
             // console.log("s",sid);
             
-                const domain =
-                req.headers.origin
-                ? new URL(req.headers.origin).hostname
-                : req.headers.host;
-
-
             const response = await axios.post(
                "https://api.zapcore.live/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
@@ -602,7 +583,7 @@ export const updateResultOfBets = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": domain || ""
+                   "x-domain": "www.reddy111.bet" || ""
                 },
                 withCredentials: true
               }
@@ -791,12 +772,6 @@ export const updateResultOfBetsHistory = async (req, res) => {
               continue;
             }
 
-                const domain =
-                req.headers.origin
-                ? new URL(req.headers.origin).hostname
-                : req.headers.host;
-
-
 
             const sid = bet.sid;  // ✅ ensure this is defined
 
@@ -813,7 +788,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": domain || ""
+                   "x-domain": "www.reddy111.bet" || ""
                 },
                 withCredentials: true
               }
@@ -950,7 +925,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
 };
 
 export const updateFancyBetResult = async (req, res) => {
-  console.log("efwhhgryegyuyuyuyurtyryyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+  // console.log("efwhhgryegyuyuyuyurtyryyyyyyyyyyyyyyyyyyyyyyyyyyyy");
   
   try {
     const betTypes = [
@@ -972,12 +947,17 @@ export const updateFancyBetResult = async (req, res) => {
         continue;
       }
 
+      // console.log("1111");
+      
+
       // Group bets by gameId
       const groupedBets = bets.reduce((acc, bet) => {
         if (!acc[bet.gameId]) acc[bet.gameId] = [];
         acc[bet.gameId].push(bet);
         return acc;
       }, {});
+
+        console.log("2222");
 
       for (const gameId of Object.keys(groupedBets)) {
         try {
@@ -986,9 +966,7 @@ export const updateFancyBetResult = async (req, res) => {
 
             const sid = bet.sid;  // ✅ ensure this is defined
 
-            const domain = req.headers.origin
-              ? new URL(req.headers.origin).hostname
-              : req.headers.host;
+            // console.log("bbbbb",bet);      
 
             const response = await axios.post(
               "https://api.zapcore.live/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
@@ -1003,13 +981,13 @@ export const updateFancyBetResult = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": domain || ""
+                   "x-domain": "www.reddy111.bet" || ""
                 },
                 withCredentials: true
               }
             );
 
-            console.log("response",response);
+            // console.log("response",response);
 
             const resultData = response.data;
                console.log("resultData", resultData)
@@ -1143,14 +1121,6 @@ export const updateFancyBetHistory = async (req, res) => {
           // const resultData = response.data;
 
           for (const bet of groupedBets[gameId]) {
-
-            const domain =
-            req.headers.origin
-            ? new URL(req.headers.origin).hostname
-            : req.headers.host;
-
-
-
             const sid = bet.sid;  // ✅ ensure this is defined
 
            const response = await axios.post(
@@ -1166,7 +1136,7 @@ export const updateFancyBetHistory = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": domain || ""
+                   "x-domain": "www.reddy111.bet" || ""
                 },
                 withCredentials: true
               }
