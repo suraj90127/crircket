@@ -53,6 +53,11 @@ export const placeBet = async (req, res) => {
       market_id = existingExact.market_id;
     }
 
+    const domain =
+     req.headers.origin
+    ? new URL(req.headers.origin).hostname
+    : req.headers.host;
+
 
 
     // // Only call the external API if there's no existing bet
@@ -75,7 +80,8 @@ export const placeBet = async (req, res) => {
               headers: {
                 'Content-Type': 'application/json',
                 'key': 'uh5MGUyrh1AfZF6SDvRk',
-                "x-domain": window.location.hostname || req.headers["x-domain"] || ""
+                "x-domain": domain || ""
+
               }
             }
           );
@@ -358,6 +364,12 @@ export const placeFancyBet = async (req, res) => {
     if (!existingExact) {
       market_id = Math.floor(10000000 + Math.random() * 90000000);
 
+          const domain =
+          req.headers.origin
+          ? new URL(req.headers.origin).hostname
+          : req.headers.host;
+
+
 
       try {
         const response = await axios.post(
@@ -375,7 +387,7 @@ export const placeFancyBet = async (req, res) => {
             headers: {
               'Content-Type': 'application/json',
               'key': 'uh5MGUyrh1AfZF6SDvRk',
-              "x-domain": window.location.hostname || req.headers["x-domain"] || ""
+              "x-domain": domain || ""
             },
             withCredentials: true     // ensures cookies are sent
           }
@@ -571,6 +583,11 @@ export const updateResultOfBets = async (req, res) => {
 
             // console.log("s",sid);
             
+                const domain =
+                req.headers.origin
+                ? new URL(req.headers.origin).hostname
+                : req.headers.host;
+
 
             const response = await axios.post(
                "https://api.zapcore.live/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
@@ -585,7 +602,7 @@ export const updateResultOfBets = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
+                  "x-domain": domain || ""
                 },
                 withCredentials: true
               }
@@ -774,6 +791,12 @@ export const updateResultOfBetsHistory = async (req, res) => {
               continue;
             }
 
+                const domain =
+                req.headers.origin
+                ? new URL(req.headers.origin).hostname
+                : req.headers.host;
+
+
 
             const sid = bet.sid;  // ✅ ensure this is defined
 
@@ -790,7 +813,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
+                  "x-domain": domain || ""
                 },
                 withCredentials: true
               }
@@ -963,6 +986,10 @@ export const updateFancyBetResult = async (req, res) => {
 
             const sid = bet.sid;  // ✅ ensure this is defined
 
+            const domain = req.headers.origin
+              ? new URL(req.headers.origin).hostname
+              : req.headers.host;
+
             const response = await axios.post(
               "https://api.zapcore.live/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
@@ -976,7 +1003,7 @@ export const updateFancyBetResult = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
+                  "x-domain": domain || ""
                 },
                 withCredentials: true
               }
@@ -1117,6 +1144,10 @@ export const updateFancyBetHistory = async (req, res) => {
 
           for (const bet of groupedBets[gameId]) {
 
+            const domain =
+            req.headers.origin
+            ? new URL(req.headers.origin).hostname
+            : req.headers.host;
 
 
 
@@ -1135,7 +1166,7 @@ export const updateFancyBetHistory = async (req, res) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'key': 'uh5MGUyrh1AfZF6SDvRk',
-                  "x-domain": window.location.hostname || req.headers["x-domain"] || ""
+                  "x-domain": domain || ""
                 },
                 withCredentials: true
               }
