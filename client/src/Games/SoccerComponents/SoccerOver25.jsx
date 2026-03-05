@@ -72,10 +72,10 @@ const SoccerOver25 = ({ matcUnder25List, gameid, match }) => {
     };
 
     const placeBet = async (gameType, marketName, maxAmo) => {
-        // if (betAmount > maxAmo) {
-        //     toast.error(`Bet amount cannot exceed ${maxAmo}`);
-        //     return;
-        // }
+        if (betAmount > maxAmo) {
+            toast.error(`Bet amount cannot exceed ${maxAmo}`);
+            return;
+        }
         const updatedFormData = {
             ...formData,
             price: betAmount,

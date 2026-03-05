@@ -146,6 +146,9 @@ export const getCricketData = async (req, res) => {
 export const fetchCrirketBettingData = async (req, res) => {
   const { gameid } = req.query;
 
+  console.log("gameid11111", gameid);
+  
+
   if (!gameid) {
     return res.status(400).json({
       success: false,
@@ -154,41 +157,41 @@ export const fetchCrirketBettingData = async (req, res) => {
   }
 
   try {
-    // 🔥 BACKEND → BACKEND CALL
     const response = await axios.get(
-      `https://aura444.org/api/cricket/betting?gameid=${gameid}`,
+      `https://aura444.org/api/cricket/betting`,
       {
-        timeout: 10000, // safety timeout
+        params: { gameid },
+        timeout: 20000,
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Accept": "application/json",
+        },
       }
     );
 
-    const data = response.data;
+    console.log("response11",response);
+    
 
-    /**
-     * aura444 betting API expected format:
-     * {
-     *   success: true,
-     *   data: {...}
-     * }
-     */
-
-    if (data?.success) {
+    if (response.data?.success) {
       return res.status(200).json({
         success: true,
-        data: data.data, // 👈 IMPORTANT: sirf betting data bhejo
+        data: response.data.data,
       });
     }
 
     return res.status(400).json({
       success: false,
-      message: "Invalid response from aura betting API",
+      message: "Invalid API response",
     });
+
   } catch (error) {
-    console.error("Error in fetchCrirketBettingData:", error.message);
+    console.error("STATUS:", error.response?.status);
+    console.error("DATA:", error.response?.data);
+    console.error("MESSAGE:", error.message);
 
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: error.response?.data?.message || "Server error",
     });
   }
 };

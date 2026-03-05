@@ -216,10 +216,10 @@ export default function Cricketbet() {
   const placeBet = async (gameType, marketName, maxAmo) => {
     // console.log("maxAmo", maxAmo);
 
-    // if (betAmount > maxAmo) {
-    //   toast.error(`Bet amount cannot exceed ${maxAmo}`);
-    //   return;
-    // }
+    if (betAmount > maxAmo) {
+      toast.error(`Bet amount cannot exceed ${maxAmo}`);
+      return;
+    }
     const updatedFormData = {
       ...formData,
       price: betAmount,
