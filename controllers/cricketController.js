@@ -146,7 +146,7 @@ export const getCricketData = async (req, res) => {
 export const fetchCrirketBettingData = async (req, res) => {
   const { gameid } = req.query;
 
-  console.log("gameid11111", gameid);
+  // console.log("gameid11111", gameid);
   
 
   if (!gameid) {

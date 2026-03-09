@@ -60,7 +60,7 @@ export const placeBet = async (req, res) => {
 
         try {
           const response = await axios.post(
-            `https://api.zapcore.live/api/placed_bets?key=uh5MGUyrh1AfZF6SDvRk`,
+            `https://api-docs.space/api/placed_bets?key=uh5MGUyrh1AfZF6SDvRk`,
             {
               gameId: gameId,
               event_id: gameId,
@@ -361,7 +361,7 @@ export const placeFancyBet = async (req, res) => {
       try {
         const response = await axios.post(
           // `https://api.cricketid.xyz/placed_bets?key=uniique5557878&sid=${sid}`,
-        `https://api.zapcore.live/api/placed_fancy_bets?key=uh5MGUyrh1AfZF6SDvRk`,
+        `https://api-docs.space/api/placed_fancy_bets?key=uh5MGUyrh1AfZF6SDvRk`,
           {
             gameId:gameId,
             event_id: gameId,
@@ -571,7 +571,7 @@ export const updateResultOfBets = async (req, res) => {
             // console.log("s",sid);
             
             const response = await axios.post(
-               "https://api.zapcore.live/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
+               "https://api-docs.space/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
                 // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
@@ -776,7 +776,7 @@ export const updateResultOfBetsHistory = async (req, res) => {
             const sid = bet.sid;  // ✅ ensure this is defined
 
             const response = await axios.post(
-              "https://api.zapcore.live/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
+              "https://api-docs.space/api/get-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
               // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
@@ -969,7 +969,7 @@ export const updateFancyBetResult = async (req, res) => {
             // console.log("bbbbb",bet);      
 
             const response = await axios.post(
-              "https://api.zapcore.live/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
+              "https://api-docs.space/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
                 // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
@@ -1124,7 +1124,7 @@ export const updateFancyBetHistory = async (req, res) => {
             const sid = bet.sid;  // ✅ ensure this is defined
 
            const response = await axios.post(
-              "https://api.zapcore.live/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
+              "https://api-docs.space/api/get-fancy-result?key=uh5MGUyrh1AfZF6SDvRk",
               {
                 // event_id: Number(bet.gameId),
                 gameId: bet.gameId,
