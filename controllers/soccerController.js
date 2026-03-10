@@ -46,7 +46,7 @@ export const fetchSoccerData = async (req, res) => {
     const response = await axios.get(
       "https://aura444.org/api/soccer",
       {
-        timeout: 10000, // safety
+        timeout: 50000, // safety
       }
     );
 
@@ -127,7 +127,7 @@ export const fetchsoccerBettingData = async (req, res) => {
     const response = await axios.get(
       `https://aura444.org/api/soccer/betting?gameid=${gameid}`,
       {
-        timeout: 10000,
+        timeout: 50000,
       }
     );
 

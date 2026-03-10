@@ -80,16 +80,18 @@ const OPENAI_API_KEY = "sk-proj-cSWq58qoVCRhOwgZuIeblPRZMahkX6VdEjumburX1tRuXcQi
 // };
 
 export const getCricketData = async (req, res) => {
+     console.log("response");
+    
   try {
     // 🔥 BACKEND → BACKEND API CALL
     const response = await axios.get(
       "https://aura444.org/api/cricket/matches",
       {
-        timeout: 10000, // safety
+        timeout: 50000, // safety
       }
     );
 
-    // console.log("response", response);
+    console.log("response", response);
     
 
     // ✅ aura444 API se jo data aata hai
@@ -110,7 +112,8 @@ export const getCricketData = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error1111",
+      error:err
     });
   }
 };
@@ -161,7 +164,7 @@ export const fetchCrirketBettingData = async (req, res) => {
       `https://aura444.org/api/cricket/betting`,
       {
         params: { gameid },
-        timeout: 20000,
+        timeout: 50000,
         headers: {
           "User-Agent": "Mozilla/5.0",
           "Accept": "application/json",
