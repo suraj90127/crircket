@@ -1,7 +1,7 @@
 import axios from "axios";
 import adminModel from "../models/adminModel.js";
 
-const OPENAI_API_KEY = "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"
+ const baseUrl = "https://api-docs.space/api";
 
 // export const getCricketData = async (req, res) => {
 //   try {
@@ -80,10 +80,22 @@ const OPENAI_API_KEY = "sk-proj-cSWq58qoVCRhOwgZuIeblPRZMahkX6VdEjumburX1tRuXcQi
 // };
 
 export const getCricketData = async (req, res) => {
-     console.log("response");
+   
     
   try {
     // 🔥 BACKEND → BACKEND API CALL
+
+    const data = await axios.get(baseUrl + "/cricket/game-data?key=P18eCa60SONhiAazrFHG", {
+      headers: {
+        "Content-Type": "application/json",
+        "x-domain": "api-docs.space"
+      }
+    })
+
+    console.log("data111",data);
+    
+      
+
     const response = await axios.get(
       "https://aura444.org/api/cricket/matches",
       {
@@ -91,7 +103,7 @@ export const getCricketData = async (req, res) => {
       }
     );
 
-    console.log("response", response);
+    // console.log("response", response);
     
 
     // ✅ aura444 API se jo data aata hai
@@ -149,8 +161,9 @@ export const getCricketData = async (req, res) => {
 export const fetchCrirketBettingData = async (req, res) => {
   const { gameid } = req.query;
 
-  // console.log("gameid11111", gameid);
-  
+
+
+
 
   if (!gameid) {
     return res.status(400).json({
