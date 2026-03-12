@@ -85,14 +85,14 @@ export const getCricketData = async (req, res) => {
   try {
     // 🔥 BACKEND → BACKEND API CALL
 
-    const data = await axios.get(baseUrl + "/cricket/game-data?key=P18eCa60SONhiAazrFHG", {
-      headers: {
-        "Content-Type": "application/json",
-        "x-domain": "api-docs.space"
-      }
-    })
+    // const data = await axios.get(baseUrl + "/cricket/game-data?key=P18eCa60SONhiAazrFHG", {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     "x-domain": "api-docs.space"
+    //   }
+    // })
 
-    console.log("data111",data);
+    // console.log("data111",data);
     
       
 
