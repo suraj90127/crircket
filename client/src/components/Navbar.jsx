@@ -144,7 +144,7 @@ const Navbar = ({ onNavItemClick }) => {
     // { name: "Kabaddi", path: "/kabaddi", icon: <MdSportsKabaddi /> }
 
 
-    { name: "OriginalsGames", path: "/games/OriginalsGames", icon: <FaGamepad /> },
+  { name: "OriginalsGames", path: "/games/OriginalsGames", icon: <FaGamepad /> },
   { name: "LiveCasino", path: "/games/liveCasino", icon: <MdLiveTv /> },
   // { name: "Sexy", path: "/games/Sexy", icon: <FaHeart /> },
   { name: "Exclusivegame", path: "/games/Exclusivegame", icon: <MdStars /> },
@@ -187,7 +187,7 @@ const Navbar = ({ onNavItemClick }) => {
   };
 
 
-  console.log("userInfouserInfouserInfo",userInfo);
+  // console.log("userInfouserInfouserInfo",userInfo);
   
   
 

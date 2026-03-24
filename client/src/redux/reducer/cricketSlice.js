@@ -36,7 +36,12 @@ export const fetchCricketBatingData = createAsyncThunk(
     try {
       const response = await api.get(`/cricket/betting?gameid=${gameid}`); // Your backend API
 
-      return response.data.data;
+      
+      let data = response.data.data; 
+      console.log("response.data.data",data); 
+      
+
+      return data
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch matches"
@@ -75,8 +80,11 @@ const cricketSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCricketBatingData.fulfilled, (state, action) => {
+        console.log("action.payload.data",action.payload.data);
         state.loader = false;
+        
         state.battingData = action.payload.data;
+
       })
       .addCase(fetchCricketBatingData.rejected, (state, action) => {
         state.loader = false;

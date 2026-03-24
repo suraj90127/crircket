@@ -144,7 +144,7 @@ export const fetchsoccerBettingData = async (req, res) => {
     if (data?.success) {
       return res.status(200).json({
         success: true,
-        data: data.data, // 👈 sirf betting data forward
+        data: data, // 👈 sirf betting data forward
       });
     }
 

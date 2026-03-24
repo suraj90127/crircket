@@ -149,7 +149,7 @@ export const fetchTannisBettingData = async (req, res) => {
     if (data?.success) {
       return res.status(200).json({
         success: true,
-        data: data.data, // 👈 only betting data
+        data: data, // 👈 only betting data
       });
     }
 

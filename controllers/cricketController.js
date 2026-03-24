@@ -160,6 +160,7 @@ export const getCricketData = async (req, res) => {
 
 export const fetchCrirketBettingData = async (req, res) => {
   const { gameid } = req.query;
+// console.log("gameid",gameid);
 
 
 
@@ -185,13 +186,13 @@ export const fetchCrirketBettingData = async (req, res) => {
       }
     );
 
-    console.log("response11",response);
+    // console.log("response11",response.data);
     
 
     if (response.data?.success) {
       return res.status(200).json({
         success: true,
-        data: response.data.data,
+        data: response.data,
       });
     }
 
@@ -201,9 +202,9 @@ export const fetchCrirketBettingData = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("STATUS:", error.response?.status);
-    console.error("DATA:", error.response?.data);
-    console.error("MESSAGE:", error.message);
+    // console.error("STATUS:", error.response?.status);
+    // console.error("DATA:", error.response?.data);
+    // console.error("MESSAGE:", error.message);
 
     return res.status(500).json({
       success: false,
