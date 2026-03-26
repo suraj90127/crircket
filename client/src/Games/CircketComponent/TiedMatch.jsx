@@ -60,10 +60,10 @@ const TiedMatch = ({ tiedMatchList, gameid, match }) => {
 
     // console.log("maxAmo", maxAmo);
 
-    if (betAmount > maxAmo) {
-      toast.error(`Bet amount cannot exceed ${maxAmo}`);
-      return;
-    }
+    // if (betAmount > maxAmo) {
+    //   toast.error(`Bet amount cannot exceed ${maxAmo}`);
+    //   return;
+    // }
     const updatedFormData = {
       ...formData,
       price: betAmount,

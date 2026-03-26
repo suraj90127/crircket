@@ -82,10 +82,10 @@ const MatchOdd = ({ matchOddsList, gameid, match }) => {
     // console.log("maxAmo", maxAmo);
     // console.log("betAmount", betAmount);
 
-    if (betAmount > maxAmo) {
-      toast.error(`Bet amount cannot exceed ${maxAmo}`);
-      return;
-    }
+    // if (betAmount > maxAmo) {
+    //   toast.error(`Bet amount cannot exceed ${maxAmo}`);
+    //   return;
+    // }
     const updatedFormData = {
       ...formData,
       price: betAmount,
